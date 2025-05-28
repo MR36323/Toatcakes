@@ -23,8 +23,8 @@ jobs:
       - name: Run Checks
         run: make run-checks
   
-  deploy-lambda:
-    name: deploy-lambda
+  deploy-terraform:
+    name: deploy-terraform
     environment: dev
     needs: run-tests
     runs-on: ubuntu-latest
@@ -35,15 +35,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      
+      - name: Checkout Repo
+        uses: actions/checkout@v4
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init
-        working-directory: terraform
+        working-directory: ./terraform
         run: terraform init
       - name: Terraform Plan
-        working-directory: terraform
+        working-directory: ./terraform
         run: terraform plan
       - name: Terraform Apply
-        working-directory: terraform
+        working-directory: ./terraform
         run: terraform apply -auto-approve

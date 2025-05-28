@@ -1,0 +1,11 @@
+resource "aws_s3_bucket" "ingestion_zone_bucket" {
+  bucket_prefix = "ingestion-zone-bucket-"
+}
+
+resource "aws_s3_bucket" "processed_zone_bucket" {
+  bucket_prefix = "processed-zone-bucket-"
+}
+
+resource "aws_s3_bucket" "lambda_code_bucket" {
+  bucket_prefix = "lambda-code-bucket-"
+}
