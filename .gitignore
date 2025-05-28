@@ -1,4 +1,4 @@
 .env
-.terraform/*
+**/.terraform*
 venv/
 venv
