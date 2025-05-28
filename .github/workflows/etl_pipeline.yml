@@ -39,11 +39,11 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init
-        working-directory: terraform
+        working-directory: ./terraform
         run: terraform init
       - name: Terraform Plan
-        working-directory: terraform
+        working-directory: ./terraform
         run: terraform plan
       - name: Terraform Apply
-        working-directory: terraform
+        working-directory: ./terraform
         run: terraform apply -auto-approve
