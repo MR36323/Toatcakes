@@ -23,8 +23,8 @@ jobs:
       - name: Run Checks
         run: make run-checks
   
-  deploy-lambda:
-    name: deploy-lambda
+  deploy-terraform:
+    name: deploy-terraform
     environment: dev
     needs: run-tests
     runs-on: ubuntu-latest
