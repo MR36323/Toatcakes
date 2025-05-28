@@ -1,1 +1,4 @@
 .env
+.terraform/*
+venv/
+venv
