@@ -1,4 +1,5 @@
-import boto3
+from boto3 import client
+import datetime
 
 class DataIsNoneError(Exception):
     pass
@@ -8,7 +9,8 @@ class InvalidBucketError(Exception):
 
 def data_to_bucket(
         data: dict[str, list[dict]], 
-        bucket_name: str
+        bucket_name: str,
+        s3_client
 ) -> None:
     """Places extracted data in specified s3 bucket.
 
@@ -26,4 +28,7 @@ def data_to_bucket(
         DataIsNoneError: No data provided.
         InvalidBucketError: No bucket of that name exists.
     """
-    ...
+    if data == None:
+        raise DataIsNoneError('Data must not be None')
+    my_datetime = datetime.datetime.now()
+    return s3_client.put_object(Bucket=bucket_name, Key=f'data-{my_datetime}', Body=str(data))
