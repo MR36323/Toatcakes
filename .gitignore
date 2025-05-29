@@ -2,3 +2,5 @@
 **/.terraform*
 venv/
 venv
+**/dependencies
+**/packages
