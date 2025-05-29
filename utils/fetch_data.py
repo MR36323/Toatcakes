@@ -1,5 +1,5 @@
 from pg8000.native import Connection
-from pg8000.exceptions import InterfaceError
+from pg8000.exceptions import InterfaceError, DatabaseError
 import os
 from dotenv import load_dotenv
 
@@ -14,9 +14,9 @@ def make_connection():
             port=int(os.getenv("PG_PORT"))
         )
         return conn
-    except Exception as e:
+    except (InterfaceError, Exception) as e:
         print(f'An error occured: {e}')
-        return None
+        raise e
 
 def close_connection(conn):
     try:
@@ -25,15 +25,15 @@ def close_connection(conn):
         print(f'An error occured: {e}')
         raise e
 
-def get_data(conn, query,table_name):
-    result = {}
+def zip_rows_and_columns(rows, columns):
+    return [dict(zip(columns, row)) for row in rows]
+
+def get_data(conn, query, table_name):
     try:
         rows = conn.run(query)
         columns = [row['name'] for row in conn.columns]
-        data = [dict(zip(columns, row)) for row in rows]
-        result[table_name] = data
-        return result
-    except Exception as e:
+        data = zip_rows_and_columns(rows, columns)
+        return {table_name: data}
+    except (DatabaseError, Exception) as e:
         print(f'An error occured: {e}')
-        return {}   
-
+        raise e
