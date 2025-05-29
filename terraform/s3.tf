@@ -14,6 +14,7 @@ resource "aws_s3_object" "extract_lambda_code" {
   bucket = aws_s3_bucket.lambda_code_bucket.bucket
   key = "extract/function.zip"
   source = "${path.module}/../packages/extract/function.zip"
+  etag   = filemd5("${path.module}/../packages/extract/function.zip")
 }
 
 resource "aws_s3_object" "extract_lambda_layers" {
