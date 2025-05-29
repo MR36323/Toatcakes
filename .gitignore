@@ -2,3 +2,6 @@
 **/.terraform*
 venv/
 venv
+**/dependencies
+**/packages
+**/*pycache
