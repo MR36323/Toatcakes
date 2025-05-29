@@ -6,7 +6,7 @@ data "archive_file" "extract_lambda" {
 
 resource "aws_lambda_function" "extract_lambda" {
   function_name = "extract_lambda"
-  source_code_hash = data.archive_file.extract_lambda.output_base64sha256
+  source_code_hash = filebase64sha256("${path.module}/../packages/extract/function.zip")
   s3_bucket = aws_s3_bucket.lambda_code_bucket.bucket
   s3_key = "extract/function.zip"
   role = aws_iam_role.extract_lambda_role.arn
