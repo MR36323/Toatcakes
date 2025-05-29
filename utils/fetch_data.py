@@ -1,4 +1,5 @@
 from pg8000.native import Connection
+from pg8000.exceptions import InterfaceError
 import os
 from dotenv import load_dotenv
 
@@ -20,7 +21,7 @@ def make_connection():
 def close_connection(conn):
     try:
         conn.close()
-    except Exception as e:
+    except (AttributeError, InterfaceError, Exception) as e:
         print(f'An error occured: {e}')
         raise e
 
@@ -34,4 +35,5 @@ def get_data(conn, query,table_name):
         return result
     except Exception as e:
         print(f'An error occured: {e}')
-        return {}
+        return {}   
+
