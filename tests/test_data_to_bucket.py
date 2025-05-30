@@ -1,9 +1,11 @@
-from utils.data_to_bucket import data_to_bucket, DataIsNoneError, InvalidBucketError
+from utils.data_to_bucket import data_to_bucket, DataIsNoneError
 import pytest
 from moto import mock_aws
 import boto3
 import os
 from botocore.exceptions import ClientError
+from unittest.mock import patch
+from datetime import datetime
 
 @pytest.fixture(scope='function',autouse=True)
 def aws_credentials():
@@ -50,10 +52,19 @@ def test_that_s3_data_is_immutable(s3_client_with_bucket):
     response = s3_client_with_bucket.list_objects_v2(Bucket='test_bucket')
     assert int(response['KeyCount']) >=2
 
-@pytest.mark.skip()
-def test_naming_convention_of_bucket_objects():
-    ...
+# @pytest.mark.skip()
+def test_naming_convention_of_bucket_objects(s3_client_with_bucket):
+    with patch('utils.data_to_bucket.datetime') as dt:
+        dt.now.return_value = datetime(2025, 5, 30)
+        data_to_bucket({'test_table': [{'test_column': 'test_value'}]}, 'test_bucket', s3_client_with_bucket)
+    key = s3_client_with_bucket.list_objects_v2(Bucket='test_bucket')['Contents'][0]['Key']
+    assert key == 'data-2025-05-30-00:00:00.json'
+    
 
-@pytest.mark.skip()
-def test_format_of_data_is_correct():
-    ...
+# @pytest.mark.skip()
+def test_format_of_data_is_correct(s3_client_with_bucket):
+    data_to_bucket({'test_table': [{'test_column': 'test_value'}]}, 'test_bucket', s3_client_with_bucket)
+    key = s3_client_with_bucket.list_objects_v2(Bucket='test_bucket')['Contents'][0]['Key']
+    response = s3_client_with_bucket.get_object(Bucket='test_bucket', Key=key)
+    object = response['Body'].read().decode('utf-8')
+    assert object == "{'test_table': [{'test_column': 'test_value'}]}"

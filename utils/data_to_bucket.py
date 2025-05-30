@@ -1,5 +1,5 @@
 from boto3 import client
-import datetime
+from datetime import datetime
 from botocore.exceptions import ClientError
 
 class DataIsNoneError(Exception):
@@ -33,7 +33,7 @@ def data_to_bucket(
         raise DataIsNoneError('Data must not be None')
     
 
-    my_datetime = datetime.datetime.now()
+    my_datetime = str(datetime.now()).replace(' ', '-')
     try:
         return s3_client.put_object(Bucket=bucket_name, Key=f'data-{my_datetime}.json', Body=str(data))
 
