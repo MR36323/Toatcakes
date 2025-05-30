@@ -30,8 +30,6 @@ def lambda_handler(event, context):
     # for table in tables:
     #     query = f"SELECT * FROM {table}"
     #     result = get_data(conn, query, table)
-    # TEST LINE
-
     close_connection(conn)
 
 
