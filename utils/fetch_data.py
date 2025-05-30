@@ -3,7 +3,7 @@ from pg8000.exceptions import InterfaceError, DatabaseError
 import os
 from dotenv import load_dotenv
 
-def make_connection():
+def make_connection() -> Connection:
     """Connects to the database.
 
     Args:
@@ -30,7 +30,7 @@ def make_connection():
         print(f'An error occured: {e}')
         raise e
 
-def close_connection(conn):
+def close_connection(conn: Connection):
     """Closes connection to database.
 
     Args:
@@ -50,7 +50,7 @@ def close_connection(conn):
         print(f'An error occured: {e}')
         raise e
 
-def zip_rows_and_columns(rows, columns):
+def zip_rows_and_columns(rows: list, columns: dict) -> list[dict]:
     """Maps the data in rows and column names.
 
     Args:
@@ -62,7 +62,7 @@ def zip_rows_and_columns(rows, columns):
     """
     return [dict(zip(columns, row)) for row in rows]
 
-def get_data(conn, query, table_name):
+def get_data(conn: Connection, query: str, table_name: str) -> dict:
     """Gets rows and columns from table in database.
 
     Args:
