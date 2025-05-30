@@ -4,4 +4,5 @@ venv/
 venv
 **/dependencies
 **/packages
-**/*pycache
+**/__pycache__/
+**/packages/*

@@ -1,6 +1,11 @@
 resource "null_resource" "create_dependencies" {
   provisioner "local-exec" {
-    command = "pip install -r ${path.module}/../requirements.txt -t ${path.module}/../dependencies/python"
+    command = <<EOT
+      rm -rf ${path.module}/../dependencies
+      mkdir -p ${path.module}/../dependencies/python
+      pip install -r ${path.module}/../requirements.txt -t ${path.module}/../dependencies/python
+      cp -r ${path.module}/../utils ${path.module}/../dependencies/python
+    EOT
   }
 
   triggers = {
