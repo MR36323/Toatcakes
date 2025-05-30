@@ -23,7 +23,7 @@ def make_connection() -> Connection:
             password=os.getenv("PG_PASSWORD"),
             database=os.getenv("PG_DATABASE"),
             host=os.getenv("PG_HOST"),
-            port=int(os.getenv("PG_PORT"))
+            port=os.getenv("PG_PORT")
         )
         return conn
     except (InterfaceError, Exception) as e:

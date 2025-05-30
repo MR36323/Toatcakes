@@ -17,9 +17,9 @@ resource "aws_s3_object" "extract_lambda_code" {
   etag   = filemd5(data.archive_file.extract_lambda.output_path)
 }
 
-resource "aws_s3_object" "extract_lambda_layers" {
-  bucket = aws_s3_bucket.lambda_code_bucket.bucket
-  key = "extract/layer.zip"
-  source = "${path.module}/../packages/extract/layer.zip"
-  etag   = filemd5(data.archive_file.layer_code.output_path)
-}
+# resource "aws_s3_object" "extract_lambda_layers" {
+#   bucket = aws_s3_bucket.lambda_code_bucket.bucket
+#   key = "extract/layer.zip"
+#   source = "${path.module}/../packages/extract/layer.zip"
+#   etag   = filemd5(data.archive_file.layer_code.output_path)
+# }
