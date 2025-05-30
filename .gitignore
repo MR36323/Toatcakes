@@ -2,4 +2,7 @@
 **/.terraform*
 venv/
 venv
-**/__pycache__
+**/dependencies
+**/packages
+**/__pycache__/
+**/packages/*
