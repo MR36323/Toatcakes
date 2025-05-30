@@ -18,7 +18,7 @@ data "archive_file" "layer_code" {
 
   type        = "zip"
   output_path = "${path.module}/../packages/extract/layer.zip"
-  source_dir  = "${path.module}/../dependencies"
+  source_dir  = "${path.module}/../dependencies/python"
 }
 
 resource "aws_lambda_layer_version" "dependencies" {
