@@ -18,5 +18,10 @@ resource "aws_lambda_function" "extract_lambda" {
   handler = "extract.lambda_handler"
   runtime = "python3.9"
   layers = [aws_lambda_layer_version.dependencies.arn]
+  environment {
+    variables = {
+      BUCKET = aws_s3_bucket.ingestion_zone_bucket.bucket
+    }
+  }
 }
 
