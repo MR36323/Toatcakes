@@ -19,14 +19,16 @@ def make_connection() -> Connection:
       InterfaceError: If credentials are incorrect.
     """
 
+    secrets_info = get_secret('prod/totesys','eu-west-2')
+    
     load_dotenv()
     try:
         conn = Connection(
-            user=os.getenv("PG_USER"), 
-            password=os.getenv("PG_PASSWORD"),
-            database=os.getenv("PG_DATABASE"),
-            host=os.getenv("PG_HOST"),
-            port=os.getenv("PG_PORT")
+            user = secrets_info['username'],
+            password = secrets_info['password'],
+            database = secrets_info['dbname'],
+            host = secrets_info['host'],
+            port = secrets_info['port']
         )
         return conn
     except (InterfaceError, Exception) as e:
@@ -87,11 +89,20 @@ def get_data(conn: Connection, query: str, table_name: str) -> dict:
     except (DatabaseError, Exception) as e:
         print(f'An error occured: {e}')
         raise e
-    
+ 
+def get_secret(secret_name: str, region_name: str) -> dict:
+    """Retrieves secret from the AWS secrets manager.
 
-def get_secret(secret_name, region_name):
-    
-    # Create a Secrets Manager client
+    Args:
+      secret_name: Name of secret identifier.
+      region_name: Region name for secrets manager.
+
+    Returns:
+      Dictionary with all the secrets info.
+
+    Raises:
+      ClientError: If anything goes wrong.
+    """
     session = boto3.session.Session()
     client = session.client(
         service_name='secretsmanager',
@@ -103,11 +114,9 @@ def get_secret(secret_name, region_name):
             SecretId=secret_name
         )
     except ClientError as e:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        print(f"ERROR :{e}")
         raise e
 
     secret = get_secret_value_response['SecretString']
-  
-
     return json.loads(secret)
+
