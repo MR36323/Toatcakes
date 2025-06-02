@@ -62,6 +62,18 @@ data "aws_iam_policy_document" "cw_permissions" {
   }
 }
 
+data "aws_iam_policy_document""read_secret_manager"{
+    statement {
+
+    actions = ["secretsmanager:GetSecretValue"]
+
+    resources = [
+      "arn:aws:secretsmanager:eu-west-2:292779133515:secret:prod/totesys-a3g2W3",
+    ]
+  }
+}
+
+
 resource "aws_iam_policy" "s3_read_policy" {
   name = "s3-read-policy"
   policy = data.aws_iam_policy_document.s3_read_access.json
@@ -70,6 +82,11 @@ resource "aws_iam_policy" "s3_read_policy" {
 resource "aws_iam_policy""s3_write_policy"{
     name = "s3-write-policy"
     policy = data.aws_iam_policy_document.s3_write_access.json
+}
+
+resource "aws_iam_policy" "secret_manager_read_policy" {
+  name = "secret-manager-policy"
+  policy = data.aws_iam_policy_document.read_secret_manager.json
 }
 
 resource "aws_iam_policy" "cw_log_policy" {
@@ -90,4 +107,9 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_write_attachment" {
 resource "aws_iam_role_policy_attachment" "lambda_cw_logs_attachment" {
   role = aws_iam_role.extract_lambda_role.name
   policy_arn = aws_iam_policy.cw_log_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_access_secret_manager_read_attachment" {
+    role = aws_iam_role.extract_lambda_role.name
+    policy_arn = aws_iam_policy.secret_manager_read_policy.arn
 }
