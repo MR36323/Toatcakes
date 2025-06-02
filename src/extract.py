@@ -8,19 +8,23 @@ import boto3
 
 def lambda_handler(event, context):
     conn = make_connection()
-    tables = [
-        "counterparty",
-        "currency",
-        "department",
-        "design",
-        "staff",
-        "sales_order",
-        "address",
-        "payment",
-        "purchase_order",
-        "payment_type",
-        "transaction",
-    ]
+    # tables = [
+    #     "counterparty",
+    #     "currency",
+    #     "department",
+    #     "design",
+    #     "staff",
+    #     "sales_order",
+    #     "address",
+    #     "payment",
+    #     "purchase_order",
+    #     "payment_type",
+    #     "transaction",
+    # ]
+
+    tables = conn.run("""SELECT * FROM information_schema.tables
+                     WHERE table_schema = 'public'
+                      AND table_name != '_prisma_migrations'""")
 
     s3_client = boto3.client('s3')
     
