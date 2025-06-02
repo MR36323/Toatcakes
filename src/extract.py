@@ -22,9 +22,9 @@ def lambda_handler(event, context):
         "transaction",
     ]
 
-    input_data = {table_name: get_data(conn, f"SELECT * FROM {table_name}", table_name)[table_name] for table_name in tables}
-
     s3_client = boto3.client('s3')
+    
+    input_data = {table_name: get_data(conn, f"SELECT * FROM {table_name}", table_name)[table_name] for table_name in tables}
 
     data_to_bucket(input_data, "ingestion-zone-bucket-20250530145907229100000002", s3_client)
 
