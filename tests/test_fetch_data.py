@@ -3,11 +3,17 @@ from utils.fetch_data import (
     close_connection,
     get_data,
     zip_rows_and_columns,
+    get_secret,
 )
 from pg8000.exceptions import InterfaceError, DatabaseError
 from datetime import datetime
 import pytest
 from unittest.mock import Mock, patch
+from moto import mock_aws
+import boto3
+from pprint import pprint
+import json
+from botocore.exceptions import ClientError
 
 
 class TestMakeConnection:
@@ -148,3 +154,29 @@ class TestGetData:
         query = "SELECT * FROM non_existent_table"
         with pytest.raises(DatabaseError):
             get_data(mock_conn, query, "non_existent_table")
+
+
+class TestGetSecret:
+
+    @mock_aws
+    def test_retrieves_secret_from_aws_secret_manager(self):
+        info = {
+            "username": "test_username",
+            "password": "123",
+            "engine": "postgres",
+            "host": "test_host.amazonaws.com",
+            "port": 5432,
+            "dbname": "test_DB",
+        }
+        info_json = json.dumps(info)
+
+        conn = boto3.client("secretsmanager", region_name="eu-west-2")
+        conn.create_secret(Name="test_secret", SecretString=info_json)
+        result = get_secret("test_secret", "eu-west-2")
+        assert result == info
+
+    @mock_aws
+    def test_throws_an_a_client_error_when_something_goes_wrong(self):
+
+        with pytest.raises(ClientError):
+            get_secret("test_secret", "eu-west-2")
