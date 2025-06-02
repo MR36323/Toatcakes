@@ -31,11 +31,11 @@ def data_to_bucket(
     """
     if data == None:
         raise DataIsNoneError('Data must not be None')
-    
+    table_name = data.keys()[0]
 
     my_datetime = str(datetime.now()).replace(' ', '-')
     try:
-        return s3_client.put_object(Bucket=bucket_name, Key=f'data-{my_datetime}.json', Body=str(data))
+        return s3_client.put_object(Bucket=bucket_name, Key=f'{table_name}-{my_datetime}.json', Body=str(data))
 
     except ClientError as exc:
         error_message = exc.response['Error']['Code']
