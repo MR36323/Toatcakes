@@ -5,7 +5,7 @@ resource "aws_sns_topic" "notification_topic" {
 resource "aws_sns_topic_subscription" "notification_subscription" {
   topic_arn = aws_sns_topic.notification_topic.arn
   protocol   = "email"
-  endpoint   = "mathieurees@gmail.com"                                             # NOT SECURE, DO NOT PUSH IT ON GITHUB
+  endpoint   = ""                                             # NOT SECURE, DO NOT PUSH IT ON GITHUB
 }
 
 # CloudWatch Log Metric Filter for simple ERROR text matching
