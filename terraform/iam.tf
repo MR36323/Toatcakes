@@ -42,6 +42,17 @@ data "aws_iam_policy_document""s3_write_access"{
   }
 }
 
+data "aws_iam_policy_document""s3_list_access"{
+    statement {
+
+    actions = ["s3:ListBucket"]
+
+    resources = [
+      "${aws_s3_bucket.ingestion_zone_bucket.arn}/*",
+    ]
+  }
+}
+
 data "aws_iam_policy_document" "cw_permissions" {
   statement {
 
@@ -72,6 +83,11 @@ resource "aws_iam_policy""s3_write_policy"{
     policy = data.aws_iam_policy_document.s3_write_access.json
 }
 
+resource "aws_iam_policy""s3_list_policy"{
+    name = "s3-list-policy"
+    policy = data.aws_iam_policy_document.s3_list_access.json
+}
+
 resource "aws_iam_policy" "cw_log_policy" {
   name = "cw-log-policy"
   policy = data.aws_iam_policy_document.cw_permissions.json
@@ -90,4 +106,9 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_write_attachment" {
 resource "aws_iam_role_policy_attachment" "lambda_cw_logs_attachment" {
   role = aws_iam_role.extract_lambda_role.name
   policy_arn = aws_iam_policy.cw_log_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3_list_attachment" {
+  role = aws_iam_role.extract_lambda_role.name
+  policy_arn = aws_iam_policy.s3_list_policy.arn
 }
