@@ -29,6 +29,7 @@ def lambda_handler(event, context):
     # tables = conn.run("""SELECT * FROM information_schema.tables
     #                  WHERE table_schema = 'public'
     #                   AND table_name != '_prisma_migrations'""")
+    # extra line
 
     s3_client = boto3.client('s3')
     for table in tables:
