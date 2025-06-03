@@ -1,14 +1,16 @@
 import sys
-sys.path.append('/opt/python')
+
+sys.path.append("/opt/python")
 
 from utils.fetch_data import make_connection, close_connection, get_data
 from utils.data_to_bucket import data_to_bucket
 from utils.check_data_updates import check_data_updates
 import boto3
 import os
-
+from dotenv import load_dotenv
 
 def lambda_handler(event, context):
+    load_dotenv()
     conn = make_connection()
     tables = [
         "counterparty",
@@ -32,14 +34,9 @@ def lambda_handler(event, context):
     for table in tables:
         new_data = get_data(conn, f"SELECT * FROM {table}", table)
         if check_data_updates(new_data):
-            data_to_bucket(new_data, 'ingestion-zone-bucket-20250602144324399800000002', s3_client)
+            data_to_bucket(new_data, os.environ.get('BUCKET'), s3_client)
 
     close_connection(conn)
-
-#os.environ.get('BUCKET')
-
-
-
 
 
 
