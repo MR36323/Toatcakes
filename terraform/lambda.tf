@@ -18,7 +18,7 @@ resource "aws_lambda_function" "extract_lambda" {
   handler = "extract.lambda_handler"
   runtime = "python3.9"
   layers = [aws_lambda_layer_version.dependencies.arn]
-  timeout = 120
+  timeout = 900
   memory_size = 256
   environment {
     variables = {
