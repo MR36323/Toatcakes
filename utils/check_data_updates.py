@@ -2,7 +2,19 @@ from boto3 import client
 import os
 from dotenv import load_dotenv
 import json
+from decimal import Decimal
+from typing import Any, Dict
+from datetime import datetime
 
+def normalize(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return {k: normalize(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [normalize(i) for i in obj]
+    elif isinstance(obj, (datetime, Decimal)):
+        return str(obj)
+    else:
+        return obj
 
 
 def check_data_updates(new_data):
@@ -13,7 +25,6 @@ def check_data_updates(new_data):
     table_name = list(new_data.keys())[0]
     
     objects_response = s3_client.list_objects_v2(Bucket=os.environ.get('BUCKET'), Prefix=table_name)
-    print(objects_response)
     if objects_response['KeyCount'] == 0:
         return True
     
@@ -24,10 +35,9 @@ def check_data_updates(new_data):
     
     current_data = s3_client.get_object(Bucket=os.environ.get('BUCKET'), Key=most_recent_key)['Body'].read().decode('utf-8')
     json_current = json.loads(current_data)
-    print("json current:", json_current)
-    print("new data:", new_data)
-    
-    if json_current == new_data:
+    print("s3", json_current)
+    print("db" , new_data)
+    if normalize(json_current) == normalize(new_data):
         return False
     else:
         return True
