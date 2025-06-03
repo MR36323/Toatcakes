@@ -24,6 +24,7 @@ data "aws_iam_policy_document""s3_read_access"{
     actions = ["s3:GetObject"]
     resources = [
       "${aws_s3_bucket.lambda_code_bucket.arn}/*",
+      "${aws_s3_bucket.ingestion_zone_bucket.arn}/*"
     ]
   }
 }
@@ -42,7 +43,7 @@ data "aws_iam_policy_document""s3_list_access"{
     actions = ["s3:ListBucket"]
 
     resources = [
-      "${aws_s3_bucket.ingestion_zone_bucket.arn}/*",
+      aws_s3_bucket.ingestion_zone_bucket.arn,
     ]
   }
 }
@@ -83,7 +84,7 @@ resource "aws_iam_policy""s3_write_policy"{
 }
 
 resource "aws_iam_policy""s3_list_policy"{
-    name = "s3-list-policy"
+    name = "s3-list-buckets-policy"
     policy = data.aws_iam_policy_document.s3_list_access.json
 }
 
@@ -92,6 +93,10 @@ resource "aws_iam_policy" "cw_log_policy" {
   policy = data.aws_iam_policy_document.cw_permissions.json
 }
 
+resource "aws_iam_policy" "secret_manager_read_policy" {
+  name = "secret-manager-policy"
+  policy = data.aws_iam_policy_document.read_secret_manager.json
+}
 
 
 
@@ -111,4 +116,9 @@ resource "aws_iam_role_policy_attachment" "lambda_cw_logs_attachment" {
 resource "aws_iam_role_policy_attachment" "lambda_s3_list_attachment" {
   role = aws_iam_role.extract_lambda_role.name
   policy_arn = aws_iam_policy.s3_list_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_access_secret_manager_read_attachment" {
+    role = aws_iam_role.extract_lambda_role.name
+    policy_arn = aws_iam_policy.secret_manager_read_policy.arn
 }
