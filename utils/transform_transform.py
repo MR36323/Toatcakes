@@ -11,11 +11,11 @@ fact_sales_order -> sales_order
 
 
 NOTE: to track latest sales record id, it might be easiest to store
-      the id as a seperate object in the processed zone s3 bucket.
+      the id as a seperate object in the processed zone bucket.
       We can then decide what to do with the tables in the bucket 
-      each time we run the pipeline. But we do NOT clear the id; only 
-      get_latest_sales_record_id() may do so, when it is time to 
-      increment the sales records id.
+      each time we run the pipeline. But we do NOT clear the id each time we
+      run the pipeline; only get_latest_sales_record_id() may change this value,
+      when it is time to increment the sales records id.
 '''
 
 def create_dim_staff(staff: str, department: str) -> pd.DataFrame:
@@ -105,4 +105,18 @@ def get_latest_sales_record_id() -> int:
 
     Returns:
       Integer representing the latest sales_record_id.
+
+    Raises:
+      Exception.
     """
+
+def update_latest_sales_record_id(sales_record_id: int):
+    """Put the latest sales record id into processed zone bucket.
+
+    Args: 
+      sales_record_id: The latest sales record id.
+
+    Returns:
+      None.
+    """
+

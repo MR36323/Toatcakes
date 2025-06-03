@@ -38,7 +38,6 @@ class TestCreateDimCounterparty:
     def test_correct_data_values(self):
         ...
 
-    
 
 class TestCreateDimCurrency:
     
@@ -115,4 +114,22 @@ class TestCreateFactSalesOrder:
         ...
 
     def test_new_sales_record_id_given_update_to_record_with_same_sales_order_id(self):
+        ...
+
+
+class TestLatestGetSalesRecordId:
+
+    def test_gets_latest_record_id_if_already_present(self):
+        ...
+
+    def test_raises_exception_if_record_id_not_already_present(self):
+        ...
+
+
+class TestUpdateLatestSalesRecordId:
+
+    def test_update_latest_record_id_if_already_present(self):
+        ...
+
+    def test_update_latest_record_id_if_not_already_present(self):
         ...
