@@ -1,7 +1,15 @@
-def get_data():
-    pass
+from botocore.exceptions import ClientError
 
-"""Takes from s3 bucket
-    Output data 
-        < Check that data of right type
-"""
+def get_data(table_name: str) -> str:
+    """Fetches data of table from ingestion zone.
+
+    Args:
+      table_name: A string representing the table name.
+
+    Returns:
+      A json-complient string of data from table.
+
+    Raises:
+      botocore.exceptions.ClientError. 
+    """
+    pass
