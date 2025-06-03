@@ -1,5 +1,6 @@
 import sys
-sys.path.append('/opt/python')
+
+sys.path.append("/opt/python")
 
 from utils.fetch_data import make_connection, close_connection, get_data
 from utils.data_to_bucket import data_to_bucket
