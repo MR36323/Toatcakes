@@ -1,6 +1,7 @@
 from boto3 import client
 from datetime import datetime
 from botocore.exceptions import ClientError
+import json
 
 class DataIsNoneError(Exception):
     pass
@@ -31,11 +32,12 @@ def data_to_bucket(
     """
     if data == None:
         raise DataIsNoneError('Data must not be None')
-    table_name = data.keys()[0]
+    
+    table_name = list(data.keys())[0]
 
     my_datetime = str(datetime.now()).replace(' ', '-')
     try:
-        return s3_client.put_object(Bucket=bucket_name, Key=f'{table_name}-{my_datetime}.json', Body=str(data))
+        return s3_client.put_object(Bucket=bucket_name, Key=f"{table_name}/{my_datetime}.json", Body=json.dumps(data, default=str).encode('utf-8'))
 
     except ClientError as exc:
         error_message = exc.response['Error']['Code']
