@@ -60,3 +60,4 @@ def test_returns_true_if_no_objects(mock_client, s3_client_with_bucket):
     test_data = {'test_table1': [{'test_column2': 'test_value2'}]}
     assert check_data_updates(test_data) == True
 
+#check if prefix is working by adding more test tables
