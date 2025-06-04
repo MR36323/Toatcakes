@@ -6,11 +6,11 @@ from decimal import Decimal
 from typing import Any, Dict
 from datetime import datetime
 
-def normalize(obj: Any) -> Any:
+def normalise(obj):
     if isinstance(obj, dict):
-        return {k: normalize(v) for k, v in obj.items()}
+        return {key: normalise(value) for key, value in obj.items()}
     elif isinstance(obj, list):
-        return [normalize(i) for i in obj]
+        return [normalise(i) for i in obj]
     elif isinstance(obj, (datetime, Decimal)):
         return str(obj)
     else:
@@ -37,7 +37,7 @@ def check_data_updates(new_data):
     json_current = json.loads(current_data)
     print("s3", json_current)
     print("db" , new_data)
-    if normalize(json_current) == normalize(new_data):
+    if normalise(json_current) == normalise(new_data):
         return False
     else:
         return True
