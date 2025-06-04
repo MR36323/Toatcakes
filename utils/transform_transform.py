@@ -76,7 +76,7 @@ def create_dim_location(address: str) -> pd.DataFrame:
     pass
 
 def create_dim_date(sale_order: str) -> pd.DataFrame:
-    """Create and populate new sale_order table.
+    """Create and populate new dimension date table.
 
     Args:
       Sale_order: Sale_order table in the form of a json string.
