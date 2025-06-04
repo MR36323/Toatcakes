@@ -53,16 +53,18 @@ def create_dim_currency(currency: str) -> pd.DataFrame:
     """
     pass
 
-def create_dim_design(design: str) -> pd.DataFrame:
+def create_dim_design(design: list) -> pd.DataFrame:
     """Create and populate new dimension design table.
 
     Args:
-      Design: Design table in the form of a json string.
+      Design: Design table in the form of a list of data.
 
     Returns:
       Pandas DataFrame object representing a design dimension table.
     """
-    pass
+    design_df = pd.DataFrame(design)
+    dim_design_df = design_df.drop(['created_at', 'last_updated'], axis=1)
+    return dim_design_df
 
 def create_dim_location(address: str) -> pd.DataFrame:
     """Create and populate new dimension address table.
@@ -73,7 +75,10 @@ def create_dim_location(address: str) -> pd.DataFrame:
     Returns:
       Pandas DataFrame object representing a location dimension table.
     """
-    pass
+    address_df = pd.DataFrame(address)
+    dim_location_df = address_df.drop(['created_at', 'last_updated'], axis=1)
+    dim_location_df.rename(columns={'address_id': 'location_id'}, inplace=True)
+    return dim_location_df
 
 def create_dim_date(sale_order: str) -> pd.DataFrame:
     """Create and populate new dimension date table.
