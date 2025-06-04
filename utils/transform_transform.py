@@ -48,7 +48,15 @@ def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     address_df = pd.DataFrame(address)
     dim_counterparty_df = pd.merge(counterparty_df,address_df,left_on='legal_address_id',right_on='address_id')
     dim_counterparty_df = dim_counterparty_df.drop(['address_id','legal_address_id','commercial_contact','delivery_contact','created_at_x','last_updated_y','created_at_y','last_updated_x',],axis=1)
-    print(dim_counterparty_df)
+    
+    dim_counterparty_df.rename(columns={'address_line_1': 'counterparty_legal_address_line_1',
+                                        'address_line_2':'counterparty_legal_address_line_2',
+                                        'district':'counterparty_legal_district',
+                                        'city':'counterparty_legal_city',
+                                        'postal_code':'counterparty_legal_postal_code',
+                                        'country':'counterparty_legal_country',
+                                        'phone':'counterparty_legal_phone_number'}, inplace=True)
+    return dim_counterparty_df
 
 def create_dim_currency(currency: list) -> pd.DataFrame:
     """Create and populate new dimension currency table.

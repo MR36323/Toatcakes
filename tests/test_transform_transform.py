@@ -9,7 +9,6 @@ from utils.transform_transform import (
 )
 import pandas as pd
 import pandas.core.frame
-import datetime
 import pytest
 import numpy as np
 
@@ -17,8 +16,10 @@ import numpy as np
 class TestCreateDimStaff:
     @pytest.fixture
     def test_data(scope='function'):
-        return ([{'staff_id': 1, 'first_name': 'Jeremie', 'last_name': 'Franey', 'department_id': 2, 'email_address': 'jeremie.franey@terrifictotes.com', 'created_at': datetime.datetime(2022, 11, 3, 14, 20, 51, 563000), 'last_updated': datetime.datetime(2022, 11, 3, 14, 20, 51, 563000)}, {'staff_id': 2, 'first_name': 'Deron', 'last_name': 'Beier', 'department_id': 1, 'email_address': 'deron.beier@terrifictotes.com', 'created_at': datetime.datetime(2022, 11, 3, 14, 20, 51, 563000), 'last_updated': datetime.datetime(2022, 11, 3, 14, 20, 51, 563000)}],
-                [{'department_id': 1, 'department_name': 'Sales', 'location': 'Manchester', 'manager': 'Richard Roma', 'created_at': datetime.datetime(2022, 11, 3, 14, 20, 49, 962000), 'last_updated': datetime.datetime(2022, 11, 3, 14, 20, 49, 962000)}, {'department_id': 2, 'department_name': 'Purchasing', 'location': 'Manchester', 'manager': 'Naomi Lapaglia', 'created_at': datetime.datetime(2022, 11, 3, 14, 20, 49, 962000), 'last_updated': datetime.datetime(2022, 11, 3, 14, 20, 49, 962000)}])
+        return ([{'staff_id': 1, 'first_name': 'Jeremie', 'last_name': 'Franey', 'department_id': 2, 'email_address': 'jeremie.franey@terrifictotes.com', 'created_at': 1, 'last_updated': 1}, 
+                 {'staff_id': 2, 'first_name': 'Deron', 'last_name': 'Beier', 'department_id': 1, 'email_address': 'deron.beier@terrifictotes.com', 'created_at': 2, 'last_updated': 1}],
+                [{'department_id': 1, 'department_name': 'Sales', 'location': 'Manchester', 'manager': 'Richard Roma', 'created_at': 2, 'last_updated': 2}, 
+                 {'department_id': 2, 'department_name': 'Purchasing', 'location': 'Manchester', 'manager': 'Naomi Lapaglia', 'created_at': 2, 'last_updated': 2}])
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_staff(test_data[0],test_data[1])
@@ -47,23 +48,34 @@ class TestCreateDimStaff:
 class TestCreateDimCounterparty:
     @pytest.fixture
     def test_data(scope='function'):
-        return ([{'counterparty_id': 1, 'counterparty_legal_name': 'Fahey and Sons', 'legal_address_id': 15, 'commercial_contact': 'Micheal Toy', 'delivery_contact': 'Mrs. Lucy Runolfsdottir', 'created_at': datetime.datetime(2022, 11, 3, 14, 20, 51, 563000), 'last_updated': datetime.datetime(2022, 11, 3, 14, 20, 51, 563000)}],
-                [{'address_id':15,'address_line_1':'test_line_1','address_line_2':'test_line_2','district':'test_district','city':'test_city','postal_code':'test_code','country':'test_country','phone':'test_phone','created_at':datetime.datetime(2022, 11, 3, 14, 20, 51, 563000),'last_updated': datetime.datetime(2022, 11, 3, 14, 20, 51, 563000)}])
+        return ([{'counterparty_id': 1, 'counterparty_legal_name': 'Fahey and Sons', 'legal_address_id': 15, 'commercial_contact': 'Micheal Toy', 'delivery_contact': 'Mrs. Lucy Runolfsdottir', 'created_at': 1, 'last_updated': 1}],
+                [{'address_id':15,'address_line_1':'test_line_1','address_line_2':'test_line_2','district':'test_district','city':'test_city','postal_code':'test_code','country':'test_country','phone':'test_phone','created_at':2,'last_updated': 2}])
     def test_output_is_of_type_dataframe(self,test_data):
         result_df = create_dim_counterparty(test_data[0],test_data[1])
         assert type(result_df) == pandas.core.frame.DataFrame
 
-    def test_correct_clmn_names(self):
-        result_df = create_dim_counterparty(test_data)
-        assert set(result_df.columns.values) == {'design_id', 'design_name', 'file_location', 'file_name'}
+    def test_correct_clmn_names(self,test_data):
+        result_df = create_dim_counterparty(test_data[0],test_data[1])
+        assert set(result_df.columns.values) == {'counterparty_id','counterparty_legal_name','counterparty_legal_address_line_1','counterparty_legal_address_line_2','counterparty_legal_district','counterparty_legal_city','counterparty_legal_postal_code','counterparty_legal_country','counterparty_legal_phone_number'}
 
-#     def test_correct_clmn_data_types(self):
-#         ...
+    def test_correct_clmn_data_types(self, test_data):
+        result_df = create_dim_counterparty(test_data[0],test_data[1])
+        assert type(result_df.loc[0]['counterparty_id']) == np.int64
+        assert type(result_df.loc[0]['counterparty_legal_name']) == str
+        assert type(result_df.loc[0]['counterparty_legal_address_line_1']) == str
+        assert type(result_df.loc[0]['counterparty_legal_address_line_2']) == str
+        assert type(result_df.loc[0]['counterparty_legal_district']) == str
+        assert type(result_df.loc[0]['counterparty_legal_city']) == str
+        assert type(result_df.loc[0]['counterparty_legal_postal_code']) == str
+        assert type(result_df.loc[0]['counterparty_legal_country']) == str
+        assert type(result_df.loc[0]['counterparty_legal_phone_number']) == str
 
-#     def test_correct_data_values(self):
-#         ...
+    def test_correct_data_values(self,test_data):
+        result_df = create_dim_counterparty(test_data[0],test_data[1])
+        row_list_0 = result_df.loc[0, :].values.tolist()
+        assert row_list_0 == [1, 'Fahey and Sons', 'test_line_1', 'test_line_2', 'test_district', 'test_city', 'test_code', 'test_country', 'test_phone']
 
-
+@pytest.mark.skip
 class TestCreateDimCurrency:
     
     def test_output_is_of_type_dataframe(self):
@@ -89,10 +101,16 @@ class TestCreateDimCurrency:
         assert list(response["currency_name"]) == ["Unknown", "Euro"]
 
 
-# class TestCreateDimDesign:
+class TestCreateDimDesign:
     
-#     def test_output_is_of_type_dataframe(self):
-#         ...
+    @pytest.fixture
+    def test_data(scope='function'):
+        return [{'design_id': 8, 'created_at': 1 , 'design_name': 'Wooden', 'file_location': '/usr', 'file_name': 'wooden-20220717-npgz.json', 'last_updated': 1},
+                {'design_id': 51, 'created_at': 2, 'design_name': 'Bronze', 'file_location': '/private', 'file_name': 'bronze-20221024-4dds.json', 'last_updated': 2}]
+    
+    def test_output_is_of_type_dataframe(self, test_data):
+        result_df = create_dim_design(test_data)
+        assert type(result_df) == pandas.core.frame.DataFrame
 
     def test_correct_clmn_names(self, test_data):
         result_df = create_dim_design(test_data)
@@ -116,7 +134,7 @@ class TestCreateDimCurrency:
 class TestCreateDimLocation:
     @pytest.fixture
     def test_data(scope='function'):
-        return [{'address_id': 1, 'address_line_1':'test_1', 'address_line_2': 'test_2', 'district': 'test_district', 'city': 'test_city', 'postal_code': 'test_code', 'country': 'test_country', 'phone': 'test_number', 'created_at': datetime.datetime(2022, 11, 3, 14, 20, 49, 962000), 'last_updated': datetime.datetime(2022, 11, 4, 14, 20, 49, 962000)}]
+        return [{'address_id': 1, 'address_line_1':'test_1', 'address_line_2': 'test_2', 'district': 'test_district', 'city': 'test_city', 'postal_code': 'test_code', 'country': 'test_country', 'phone': 'test_number', 'created_at': 1, 'last_updated': 1}]
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_location(test_data)
@@ -159,25 +177,29 @@ class TestCreateDimLocation:
 #         ...    
 
 
-# class TestCreateFactSalesOrder:
-    
-#     def test_output_is_of_type_dataframe(self):
-#         ...
+class TestCreateFactSalesOrder:
+    @pytest.fixture
+    def test_data(scope='function'):
+        return [{'sales_order_id': 2, 'created_at': "2022-11-03 14:20:49.962000", 'last_updated': "2022-11-04 14:20:49.962000", 'design_id': 3, 'staff_id': 19, 'counterparty_id': 8, 'units_sold': 42972, 'unit_price': '3.94', 'currency_id': 2, 'agreed_delivery_date': '2022-11-07', 'agreed_payment_date': '2022-11-08', 'agreed_delivery_location_id': 8}, 
+                                 {'sales_order_id': 3, 'created_at': "2022-12-03 14:20:49.962000", 'last_updated': "2022-12-04 14:20:49.962000", 'design_id': 4, 'staff_id': 10, 'counterparty_id': 4, 'units_sold': 65839, 'unit_price': '2.91', 'currency_id': 3, 'agreed_delivery_date': '2022-11-06', 'agreed_payment_date': '2022-11-07', 'agreed_delivery_location_id': 19}]
 
-#     def test_correct_clmn_names(self):
-#         ...
+    def test_output_is_of_type_dataframe(self, test_data):
+        ...
 
-#     def test_correct_clmn_data_types(self):
-#         ...
+    def test_correct_clmn_names(self):
+        ...
 
-#     def test_correct_data_values(self):
-#         ...
+    def test_correct_clmn_data_types(self):
+        ...
 
-#     def test_new_sales_record_id_given_new_sales_order_id(self):
-#         ...
+    def test_correct_data_values(self):
+        ...
 
-#     def test_new_sales_record_id_given_update_to_record_with_same_sales_order_id(self):
-#         ...
+    def test_new_sales_record_id_given_new_sales_order_id(self):
+        ...
+
+    def test_new_sales_record_id_given_update_to_record_with_same_sales_order_id(self):
+        ...
 
 
 # class TestLatestGetSalesRecordId:
