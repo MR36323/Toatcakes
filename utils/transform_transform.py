@@ -22,8 +22,8 @@ def create_dim_staff(staff: list, department: list) -> pd.DataFrame:
     """Create and populate new dimension staff table.
 
     Args:
-      staff: Staff table in the form of a json string.
-      department: Department table in the form of a json string.
+      staff: Staff table in the form of a json listing.
+      department: Department table in the form of a json listing.
 
     Returns:
       Pandas DataFrame object representing a staff dimension table.
@@ -38,8 +38,8 @@ def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     """Create and populate new dimension counterparty table.
 
     Args:
-      counterparty: Counterparty table in the form of a json string.
-      address: Address table in the form of a json string.
+      counterparty: Counterparty table in the form of a json listing.
+      address: Address table in the form of a json listing.
 
     Returns:
       Pandas DataFrame object representing a counterparty dimension table.
@@ -50,16 +50,31 @@ def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     dim_counterparty_df = dim_counterparty_df.drop(['address_id','legal_address_id','commercial_contact','delivery_contact','created_at_x','last_updated_y','created_at_y','last_updated_x',],axis=1)
     print(dim_counterparty_df)
 
-def create_dim_currency(currency: str) -> pd.DataFrame:
+def create_dim_currency(currency: list) -> pd.DataFrame:
     """Create and populate new dimension currency table.
 
     Args:
-      currency: Currency table in the form of a json string.
+      currency: Currency table in the form of a json listing.
 
     Returns:
       Pandas DataFrame object representing a currency dimension table.
     """
-    pass
+
+    currency_name = {
+        "GBP": "British pound sterling",
+        "USD":  "United States dollar",
+        "EUR":  "Euro"
+    }
+
+    dim_currency_df = pd.DataFrame(currency)
+    dim_currency_df = dim_currency_df.drop(['created_at', 'last_updated'], axis=1)
+
+    dim_currency_df['currency_name'] = dim_currency_df['currency_code'].map(currency_name)
+    dim_currency_df = dim_currency_df.fillna("Unknown")
+    
+    return dim_currency_df
+
+
 
 def create_dim_design(design: list) -> pd.DataFrame:
     """Create and populate new dimension design table.
@@ -78,7 +93,7 @@ def create_dim_location(address: list) -> pd.DataFrame:
     """Create and populate new dimension address table.
 
     Args:
-      Address: Address table in the form of a json string.
+      Address: Address table in the form of a json listing.
 
     Returns:
       Pandas DataFrame object representing a location dimension table.
@@ -88,22 +103,22 @@ def create_dim_location(address: list) -> pd.DataFrame:
     dim_location_df.rename(columns={'address_id': 'location_id'}, inplace=True)
     return dim_location_df
 
-def create_dim_date(sale_order: str) -> pd.DataFrame:
+def create_dim_date(sale_order: list) -> pd.DataFrame:
     """Create and populate new dimension date table.
 
     Args:
-      Sale_order: Sale_order table in the form of a json string.
+      Sale_order: Sale_order table in the form of a json listing.
 
     Returns:
       Pandas DataFrame object representing a sale_order dimension table.
     """
     pass
 
-def create_fact_sales_order(sales_order: str) -> pd.DataFrame:
+def create_fact_sales_order(sales_order: list) -> pd.DataFrame:
     """Create and populate new fact sales_order table.
 
     Args:
-      sales_order: Sales_order table in the form of a json string.
+      sales_order: Sales_order table in the form of a json listing.
 
     Returns:
       Pandas DataFrame object representing a fact sales_order table.
