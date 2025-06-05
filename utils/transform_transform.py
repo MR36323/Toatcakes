@@ -122,19 +122,34 @@ def create_dim_date(sale_order: list) -> pd.DataFrame:
     """
     pass
 
-def create_fact_sales_order(sales_order: list) -> pd.DataFrame:
+def create_fact_sales_order(sales_order: list, previous_df_json) -> pd.DataFrame:
     """Create and populate new fact sales_order table.
 
     Args:
       sales_order: Sales_order table in the form of a json listing.
+      current_record: current highest record_id
 
     Returns:
       Pandas DataFrame object representing a fact sales_order table.
     """
-    sales_order_df = pd.DataFrame(sales_order)
-    sales_order_df['sales_record_id'] = range(1, len(sales_order_df) + 1)
-    for row in sales_order_df:
-       row['created_date'], row['created_time'] = sales_order_df['created_at'].split(' ')
+    previous_df = pd.DataFrame(previous_df_json)
+    if previous_df_json:
+        previous_df = previous_df.drop(['sales_record_id'],axis=1)
+    new_df = pd.DataFrame(sales_order)
+    created_at_list = list(new_df['created_at'])
+    new_df['created_date'] = [date_time.split(' ')[0] for date_time in created_at_list]
+    new_df['created_time'] = [date_time.split(' ')[1] for date_time in created_at_list]
+    last_updated_list = list(new_df['last_updated'])
+    new_df['last_updated_date'] = [date_time.split(' ')[0] for date_time in last_updated_list]
+    new_df['last_updated_time'] = [date_time.split(' ')[1] for date_time in last_updated_list]
+    new_df = new_df.drop(['created_at', 'last_updated'], axis=1)
+    new_df.rename(columns={'staff_id': 'sales_staff_id'}, inplace=True)
+    fact_sales_df = pd.concat([previous_df, new_df])
+    fact_sales_df.drop_duplicates(inplace=True)
+    fact_sales_df['sales_record_id'] = range(1, len(fact_sales_df) + 1)
+    fact_sales_df = fact_sales_df[['sales_record_id','sales_order_id','created_date' ,'created_time', 'last_updated_date','last_updated_time','sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id','design_id', 'agreed_payment_date' ,'agreed_delivery_date','agreed_delivery_location_id' ]]
+    return fact_sales_df
+
 
 
 
@@ -161,3 +176,8 @@ def update_latest_sales_record_id(sales_record_id: int):
       None.
     """
 
+# lambda_handler():
+#     util gets most recent from tranform bucket as json converted to dataframe. get current      record id from key.
+# create_fact_sales_order(sales_order, current_record, current_df) 
+
+#
