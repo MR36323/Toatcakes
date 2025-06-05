@@ -256,8 +256,8 @@ class TestCreateFactSalesOrder:
 class TestGetLatestTransformedObject:
     @pytest.fixture
     def test_data1(self):
-        return ({'B': [0, 2, 4],
-                   'C': [120, 180, 40]})    
+        return ({'A': [0, 2, 4],
+                   'D': [120, 180, 40]})    
     @pytest.fixture
     def test_data2(self):
         return ({'B': [0, 2, 4],
@@ -281,13 +281,6 @@ class TestGetLatestTransformedObject:
     def s3_client_with_bucket(self, s3_client):
         s3_client.create_bucket(Bucket='test-bucket')
         yield s3_client
-
-    # @pytest.fixture(scope='function')
-    # def s3_client_with_bucket_with_objects(s3_client_with_bucket):
-    #     s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'test_table1{datetime.datetime(2025, 1, 1)}', Body=json.dumps({'test_table1': [{'test_column1': 'test_value1'}]}))
-    #     time.sleep(1)
-    #     s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'test_table1{datetime.datetime(2025, 1, 2)}', Body=json.dumps({'test_table1': [{'test_column2': 'test_value2'}]}))
-    #     yield s3_client_with_bucket
     
     @pytest.fixture(scope='function')
     def s3_client_with_bucket_with_objects(self, s3_client_with_bucket,test_data1,test_data2):
@@ -303,6 +296,16 @@ class TestGetLatestTransformedObject:
     def test_returns_a_dataframe(self,mock_client,s3_client_with_bucket_with_objects):
         mock_client.return_value = s3_client_with_bucket_with_objects
         result = get_latest_transformed_object_from_S3()
-        print(result)
         assert type(result) == pandas.core.frame.DataFrame
 
+    @patch('utils.transform_transform.client')
+    def test_returns_the_recently_added_dataframe(self,mock_client,s3_client_with_bucket_with_objects,test_data2):
+        mock_client.return_value = s3_client_with_bucket_with_objects
+        result = get_latest_transformed_object_from_S3()
+        assert result.equals(pd.DataFrame(test_data2))
+
+    @patch('utils.transform_transform.client')
+    def test_returns_None_when_bucket_is_empty(self,mock_client,s3_client_with_bucket,test_data2):
+        mock_client.return_value = s3_client_with_bucket
+        result = get_latest_transformed_object_from_S3()
+        assert len(result) == 0
