@@ -4,7 +4,9 @@ import os
 import boto3
 import json
 from moto import mock_aws
-from datetime import datetime, time
+from datetime import datetime
+from unittest.mock import patch
+import time
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -25,23 +27,17 @@ def s3_client(aws_credentials):
 
 @pytest.fixture(scope="function")
 def s3_client_with_bucket(s3_client):
-    s3_client.create_bucket(Bucket="test_bucket")
+    s3_client.create_bucket(Bucket="test-bucket")
     yield s3_client
 
 @pytest.fixture(scope='function')
 def s3_client_with_bucket_with_objects(s3_client_with_bucket):
-    s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'test_table1{datetime.datetime(2025, 1, 1)}', Body=json.dumps({'test_table1': [{'test_column1': 'test_value1'}]}))
+    s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'test_table1{datetime(2025, 1, 1)}', Body=json.dumps({'test_table1': [{'test_column1': 'test_value1'}]}))
     time.sleep(1)
-    s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'test_table1{datetime.datetime(2025, 1, 2)}', Body=json.dumps({'test_table1': [{'test_column2': 'test_value2'}]}))
+    s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'test_table1{datetime(2025, 1, 2)}', Body=json.dumps({'test_table1': [{'test_column2': 'test_value2'}]}))
     yield s3_client_with_bucket
 
-def test_returns_json_complient_str(s3_client_with_bucket_with_objects):
-    get_data()
-
-    
-
-def test_returns_lastest_json_complient_str():
-    ...
-
-def test_raises_error_if_table_name_is_invalid_in_bucket():
-    ...
+@patch('utils.transform_get_from_ingestion_s3.client')
+def test_returns_latest_list_of_values(mock_client, s3_client_with_bucket_with_objects):
+    mock_client.return_value = s3_client_with_bucket_with_objects
+    assert get_data('test_table1', 'test-bucket') == [{"test_column2": "test_value2"}]

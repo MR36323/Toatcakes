@@ -12,10 +12,6 @@ import pandas.core.frame
 import pytest
 import numpy as np
 
-##############
-from pprint import pprint
-##############
-
 
 class TestCreateDimStaff:
     @pytest.fixture
