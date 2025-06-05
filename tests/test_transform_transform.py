@@ -162,19 +162,22 @@ class TestCreateDimLocation:
 
     
 
-# class TestCreateDimDate:
-    
-#     def test_output_is_of_type_dataframe(self):
-#         ...
+class TestCreateDimDate:
 
-#     def test_correct_clmn_names(self):
-#         ...
+    def test_output_is_of_type_dataframe(self):
+        test_input = [{"sales_order_id": 2, "created_at": "2022-11-03 14:20:52.186000", "last_updated": "2022-11-03 14:20:52.186000", "design_id": 3, "staff_id": 19, "counterparty_id": 8, "units_sold": 42972, "unit_price": "3.94", "currency_id": 2, "agreed_delivery_date": "2022-11-07", "agreed_payment_date": "2022-11-08", "agreed_delivery_location_id": 8}]
+        response = create_dim_date(test_input)
+        assert isinstance(response, pd.DataFrame)
 
-#     def test_correct_clmn_data_types(self):
-#         ...
-
-#     def test_correct_data_values(self):
-#         ...    
+    def test_correct_clmn_names_are_returned(self):
+        test_input = [{"sales_order_id": 2, "created_at": "2022-11-03 14:20:52.186000", "last_updated": "2022-11-03 14:20:52.186000", "design_id": 3, "staff_id": 19, "counterparty_id": 8, "units_sold": 42972, "unit_price": "3.94", "currency_id": 2, "agreed_delivery_date": "2022-11-07", "agreed_payment_date": "2022-11-08", "agreed_delivery_location_id": 8}]
+        response = create_dim_date(test_input)
+        assert list(response.columns) == ['date_id', 'year', 'month', 'day', 'day_of_week', 'day_name', 'month_name', 'quarter']
+        
+    def test_correct_data_values(self):
+        test_input = [{"sales_order_id": 2, "created_at": "2022-11-03 14:20:52.186000", "last_updated": "2022-11-03 14:20:52.186000", "design_id": 3, "staff_id": 19, "counterparty_id": 8, "units_sold": 42972, "unit_price": "3.94", "currency_id": 2, "agreed_delivery_date": "2022-11-07", "agreed_payment_date": "2022-11-08", "agreed_delivery_location_id": 8}]
+        response = create_dim_date(test_input)
+        assert  
 
 
 class TestCreateFactSalesOrder:
