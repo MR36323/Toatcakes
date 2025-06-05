@@ -6,3 +6,4 @@ venv
 **/packages
 **/__pycache__/
 **/packages/*
+notebook.ipynb
