@@ -1,22 +1,9 @@
 import pandas as pd
+import datetime 
 
-'''
-dim_staff -> staff, department
-dim_counterparty -> counterparty, address
-dim_currency -> currency, (currency_name use switch case)
-dim_design -> design
-dim_location -> address
-dim_date -> sales_order
-fact_sales_order -> sales_order
-
-
-NOTE: to track latest sales record id, it might be easiest to store
-      the id as a seperate object in the processed zone bucket.
-      We can then decide what to do with the tables in the bucket 
-      each time we run the pipeline. But we do NOT clear the id each time we
-      run the pipeline; only get_latest_sales_record_id() may change this value,
-      when it is time to increment the sales records id.
-'''
+##############
+from pprint import pprint
+##############
 
 def create_dim_staff(staff: list, department: list) -> pd.DataFrame:
     """Create and populate new dimension staff table.
@@ -111,7 +98,7 @@ def create_dim_location(address: list) -> pd.DataFrame:
     dim_location_df.rename(columns={'address_id': 'location_id'}, inplace=True)
     return dim_location_df
 
-def create_dim_date(sale_order: list) -> pd.DataFrame:
+def create_dim_date(sales_orders: list) -> pd.DataFrame:
     """Create and populate new dimension date table.
 
     Args:
@@ -120,7 +107,69 @@ def create_dim_date(sale_order: list) -> pd.DataFrame:
     Returns:
       Pandas DataFrame object representing a sale_order dimension table.
     """
-    pass
+    dates = []
+    for sales_order in sales_orders:
+        for date_key in ('created_at', 
+                        'last_updated', 
+                        'agreed_delivery_date',
+                        'agreed_payment_date'):
+            date = sales_order[date_key]
+            if date not in dates:
+                dates.append(date)
+    
+    date_ids, years, months, days, days_of_week = [], [], [], [], []
+    day_names, month_names, quarters = [], [], []
+
+    day_names_reference = (
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+    )
+    for date in dates:
+        date = date.split()[0]
+        split_date = date.split('-')
+
+        year = int(split_date[0])
+        month = int(split_date[1])
+        day = int(split_date[2])
+
+        date_ids.append(date)
+        years.append(year)
+        months.append(month)
+        days.append(day)
+
+        if month <= 3:
+            quarters.append(1)
+        elif month <= 6:
+            quarters.append(2)
+        elif month <= 9:
+            quarters.append(3)
+        elif month <= 12:
+            quarters.append(4)
+
+        date_object = datetime.date(year, month, day)
+        month_names.append(date_object.strftime("%B"))
+        day = date_object.strftime("%A")
+        day_names.append(day)
+        days_of_week.append(day_names_reference.index(day) + 1)
+
+    date_columns = {
+        'date_id': date_ids, 
+        'year': years, 
+        'month': months, 
+        'day': days, 
+        'day_of_week': days_of_week, 
+        'day_name': day_names, 
+        'month_name': month_names, 
+        'quarter': quarters
+    }   
+    dim_date_df = pd.DataFrame(date_columns)
+    return dim_date_df
+       
 
 def create_fact_sales_order(sales_order: list) -> pd.DataFrame:
     """Create and populate new fact sales_order table.
