@@ -188,7 +188,7 @@ def get_latest_transformed_object_from_S3():
     s3_client = client('s3')
     
     objects_response = s3_client.list_objects_v2(Bucket=os.environ.get('BUCKET'), Prefix='fact_sales_order')
-    print(objects_response)
+
     if objects_response['KeyCount'] == 0:
         return None
     
@@ -198,5 +198,6 @@ def get_latest_transformed_object_from_S3():
     most_recent_key = [obj['Key'] for obj in objects_response['Contents'] if obj['LastModified'] == most_recent][0]
     
     current_data = s3_client.get_object(Bucket=os.environ.get('BUCKET'), Key=most_recent_key)['Body'].read()
-    return pd.read_parquet(current_data)
+    print(current_data)
+    return pd.read_parquet(BytesIO(current_data))
 
