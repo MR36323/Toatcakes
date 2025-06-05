@@ -127,7 +127,7 @@ def create_dim_date(sale_order: list) -> pd.DataFrame:
     """
     pass
 
-def create_fact_sales_order(sales_order: list, previous_df_json: list) -> pd.DataFrame:
+def create_fact_sales_order(sales_order: list, previous_df: pd.DataFrame) -> pd.DataFrame:
     """Create and populate new fact sales_order table.
 
     Args:
@@ -137,8 +137,7 @@ def create_fact_sales_order(sales_order: list, previous_df_json: list) -> pd.Dat
     Returns:
       Pandas DataFrame object representing a fact sales_order table.
     """
-    previous_df = pd.DataFrame(previous_df_json)
-    if previous_df_json:
+    if len(previous_df) != 0:
         previous_df = previous_df.drop(['sales_record_id'],axis=1)
     new_df = pd.DataFrame(sales_order)
     created_at_list = list(new_df['created_at'])

@@ -197,17 +197,17 @@ class TestCreateFactSalesOrder:
 
     def test_output_is_of_type_dataframe(self, test_data):
         test_previous_data = []
-        result_df = create_fact_sales_order(test_data, test_previous_data)
+        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
         assert type(result_df) == pandas.core.frame.DataFrame
 
     def test_correct_clmn_names(self,test_data):
         test_previous_data = []
-        result_df = create_fact_sales_order(test_data, test_previous_data)
+        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
         assert list(result_df.columns.values) == ['sales_record_id', 'sales_order_id','created_date','created_time','last_updated_date','last_updated_time','sales_staff_id','counterparty_id','units_sold','unit_price','currency_id','design_id','agreed_payment_date','agreed_delivery_date','agreed_delivery_location_id']
 
     def test_correct_clmn_data_types(self, test_data):
         test_previous_data = []
-        result_df = create_fact_sales_order(test_data, test_previous_data)
+        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
         assert type(result_df.loc[0]['sales_record_id']) == np.int64
         assert type(result_df.loc[0]['sales_order_id']) == np.int64
         assert type(result_df.loc[0]['created_date']) == str
@@ -226,7 +226,7 @@ class TestCreateFactSalesOrder:
 #refactor to loop through columns and rows
 
     def test_correct_data_values_for_new_and_updates_records(self, test_data, test_previous_data):
-        result_df = create_fact_sales_order(test_data, test_previous_data)
+        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
         row_list = []
         
         for i in range(len(result_df)):
