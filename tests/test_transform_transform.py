@@ -182,18 +182,48 @@ class TestCreateFactSalesOrder:
     def test_data(scope='function'):
         return [{'sales_order_id': 2, 'created_at': "2022-11-03 14:20:49.962000", 'last_updated': "2022-11-04 14:20:49.962000", 'design_id': 3, 'staff_id': 19, 'counterparty_id': 8, 'units_sold': 42972, 'unit_price': '3.94', 'currency_id': 2, 'agreed_delivery_date': '2022-11-07', 'agreed_payment_date': '2022-11-08', 'agreed_delivery_location_id': 8}, 
                                  {'sales_order_id': 3, 'created_at': "2022-12-03 14:20:49.962000", 'last_updated': "2022-12-04 14:20:49.962000", 'design_id': 4, 'staff_id': 10, 'counterparty_id': 4, 'units_sold': 65839, 'unit_price': '2.91', 'currency_id': 3, 'agreed_delivery_date': '2022-11-06', 'agreed_payment_date': '2022-11-07', 'agreed_delivery_location_id': 19}]
+    
+    @pytest.fixture
+    def test_previous_data(scope='function'):
+        return  [{'sales_record_id': 1, 'sales_order_id': 2,'created_date':'2022-11-03','created_time': '14:20:49.962000','last_updated_date':'2022-11-04',  'last_updated_time': '14:20:49.962000', 'design_id': 3, 'sales_staff_id': 19, 'counterparty_id': 8, 'units_sold': 42972, 'unit_price': '3.94', 'currency_id': 2, 'agreed_delivery_date': '2022-11-07', 'agreed_payment_date': '2022-11-08', 'agreed_delivery_location_id': 8}, 
+                                 {'sales_record_id': 2,'sales_order_id': 3, 'created_date': "2022-12-03", 'created_time': '14:20:49.962000', 'last_updated_date': "2022-12-04",'last_updated_time': '14:20:49.962000', 'design_id': 4, 'sales_staff_id': 10, 'counterparty_id': 4, 'units_sold': 65839, 'unit_price': '2.91', 'currency_id': 3, 'agreed_delivery_date': '2022-11-06', 'agreed_payment_date': '2022-11-07', 'agreed_delivery_location_id': 19}]
 
     def test_output_is_of_type_dataframe(self, test_data):
-        ...
+        test_previous_data = []
+        result_df = create_fact_sales_order(test_data, test_previous_data)
+        assert type(result_df) == pandas.core.frame.DataFrame
 
-    def test_correct_clmn_names(self):
-        ...
+    def test_correct_clmn_names(self,test_data):
+        test_previous_data = []
+        result_df = create_fact_sales_order(test_data, test_previous_data)
+        assert list(result_df.columns.values) == ['sales_record_id', 'sales_order_id','created_date','created_time','last_updated_date','last_updated_time','sales_staff_id','counterparty_id','units_sold','unit_price','currency_id','design_id','agreed_payment_date','agreed_delivery_date','agreed_delivery_location_id']
 
-    def test_correct_clmn_data_types(self):
-        ...
+    def test_correct_clmn_data_types(self, test_data):
+        test_previous_data = []
+        result_df = create_fact_sales_order(test_data, test_previous_data)
+        assert type(result_df.loc[0]['sales_record_id']) == np.int64
+        assert type(result_df.loc[0]['sales_order_id']) == np.int64
+        assert type(result_df.loc[0]['created_date']) == str
+        assert type(result_df.loc[0]['created_time']) == str
+        assert type(result_df.loc[0]['last_updated_date']) == str
+        assert type(result_df.loc[0]['last_updated_time']) == str
+        assert type(result_df.loc[0]['sales_staff_id']) == np.int64
+        assert type(result_df.loc[0]['counterparty_id']) == np.int64
+        assert type(result_df.loc[0]['units_sold']) == np.int64
+        assert type(result_df.loc[0]['unit_price']) == str
+        assert type(result_df.loc[0]['currency_id']) == np.int64
+        assert type(result_df.loc[0]['design_id']) == np.int64
+        assert type(result_df.loc[0]['agreed_payment_date']) == str
+        assert type(result_df.loc[0]['agreed_delivery_location_id']) == np.int64
 
-    def test_correct_data_values(self):
-        ...
+#refactor to loop through columns and rows
+
+    def test_correct_data_values(self, test_data, test_previous_data):
+        result_df = create_fact_sales_order(test_data, test_previous_data)
+        row_list = []
+        for i in range(len(result_df)):
+            row_list.append(result_df.loc[i, :].values.tolist())
+        assert row_list == [[1,2,'2022-11-03','14:20:49.962000','2022-11-04','14:20:49.962000', 19,8,42972,'3.94',2,3,'2022-11-08','2022-11-07',8],[2,3,'2022-12-03','14:20:49.962000','2022-12-04','14:20:49.962000',10,4,65839,'2.91',3,4,'2022-11-07','2022-11-06',19 ],[2,3,'2022-12-03','14:20:49.962000','2022-12-04','14:20:49.962000',10,4,65839,'5.50',3,4,'2022-11-07','2022-11-06',19]]
 
     def test_new_sales_record_id_given_new_sales_order_id(self):
         ...
