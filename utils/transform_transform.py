@@ -1,4 +1,9 @@
 import pandas as pd
+from boto3 import client
+import os
+from dotenv import load_dotenv
+import json 
+from io import BytesIO
 
 '''
 dim_staff -> staff, department
@@ -122,7 +127,7 @@ def create_dim_date(sale_order: list) -> pd.DataFrame:
     """
     pass
 
-def create_fact_sales_order(sales_order: list, previous_df_json) -> pd.DataFrame:
+def create_fact_sales_order(sales_order: list, previous_df_json: list) -> pd.DataFrame:
     """Create and populate new fact sales_order table.
 
     Args:
@@ -144,14 +149,11 @@ def create_fact_sales_order(sales_order: list, previous_df_json) -> pd.DataFrame
     new_df['last_updated_time'] = [date_time.split(' ')[1] for date_time in last_updated_list]
     new_df = new_df.drop(['created_at', 'last_updated'], axis=1)
     new_df.rename(columns={'staff_id': 'sales_staff_id'}, inplace=True)
-    fact_sales_df = pd.concat([previous_df, new_df])
-    fact_sales_df.drop_duplicates(inplace=True)
+    fact_sales_df = pd.concat([previous_df, new_df],ignore_index=True)
+    fact_sales_df.drop_duplicates(inplace=True,ignore_index=True)
     fact_sales_df['sales_record_id'] = range(1, len(fact_sales_df) + 1)
     fact_sales_df = fact_sales_df[['sales_record_id','sales_order_id','created_date' ,'created_time', 'last_updated_date','last_updated_time','sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id','design_id', 'agreed_payment_date' ,'agreed_delivery_date','agreed_delivery_location_id' ]]
     return fact_sales_df
-
-
-
 
 def get_latest_sales_record_id() -> int:
     """Get the latest sales record id from processed zone bucket.
@@ -180,4 +182,21 @@ def update_latest_sales_record_id(sales_record_id: int):
 #     util gets most recent from tranform bucket as json converted to dataframe. get current      record id from key.
 # create_fact_sales_order(sales_order, current_record, current_df) 
 
-#
+def get_latest_transformed_object_from_S3():
+    load_dotenv()
+
+    s3_client = client('s3')
+    
+    objects_response = s3_client.list_objects_v2(Bucket=os.environ.get('BUCKET'), Prefix='fact_sales_order')
+    print(objects_response)
+    if objects_response['KeyCount'] == 0:
+        return None
+    
+    times_list = [obj['LastModified'] for obj in objects_response['Contents']]
+    
+    most_recent = max(times_list)
+    most_recent_key = [obj['Key'] for obj in objects_response['Contents'] if obj['LastModified'] == most_recent][0]
+    
+    current_data = s3_client.get_object(Bucket=os.environ.get('BUCKET'), Key=most_recent_key)['Body'].read()
+    return pd.read_parquet(current_data)
+
