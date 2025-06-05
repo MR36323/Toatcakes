@@ -1,9 +1,6 @@
 import pandas as pd
 import datetime 
 
-##############
-from pprint import pprint
-##############
 
 def create_dim_staff(staff: list, department: list) -> pd.DataFrame:
     """Create and populate new dimension staff table.
