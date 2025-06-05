@@ -131,7 +131,12 @@ def create_fact_sales_order(sales_order: list) -> pd.DataFrame:
     Returns:
       Pandas DataFrame object representing a fact sales_order table.
     """
-    pass
+    sales_order_df = pd.DataFrame(sales_order)
+    sales_order_df['sales_record_id'] = range(1, len(sales_order_df) + 1)
+    for row in sales_order_df:
+       row['created_date'], row['created_time'] = sales_order_df['created_at'].split(' ')
+
+
 
 def get_latest_sales_record_id() -> int:
     """Get the latest sales record id from processed zone bucket.
