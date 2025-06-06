@@ -144,8 +144,8 @@ def create_fact_sales_order(sales_order: list, previous_df_json) -> pd.DataFrame
     new_df['last_updated_time'] = [date_time.split(' ')[1] for date_time in last_updated_list]
     new_df = new_df.drop(['created_at', 'last_updated'], axis=1)
     new_df.rename(columns={'staff_id': 'sales_staff_id'}, inplace=True)
-    fact_sales_df = pd.concat([previous_df, new_df])
-    fact_sales_df.drop_duplicates(inplace=True)
+    fact_sales_df = pd.concat([previous_df, new_df], ignore_index=True)
+    fact_sales_df.drop_duplicates(inplace=True,ignore_index=True)
     fact_sales_df['sales_record_id'] = range(1, len(fact_sales_df) + 1)
     fact_sales_df = fact_sales_df[['sales_record_id','sales_order_id','created_date' ,'created_time', 'last_updated_date','last_updated_time','sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id','design_id', 'agreed_payment_date' ,'agreed_delivery_date','agreed_delivery_location_id' ]]
     return fact_sales_df
