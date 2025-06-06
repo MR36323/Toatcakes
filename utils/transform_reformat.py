@@ -19,4 +19,4 @@ def reformat(table: pd.DataFrame, bucket_name: str, s3_client: client) -> None:
     my_datetime = str(datetime.now()).replace(' ', '-')
     parquet_format = table.to_parquet()
 
-    return s3_client.put_object(Bucket=bucket_name, Key=f'data-{my_datetime}.snappy.parquet', Body=str(parquet_format))
+    return s3_client.put_object(Bucket=bucket_name, Key=f'data-{my_datetime}.snappy.parquet', Body=parquet_format)
