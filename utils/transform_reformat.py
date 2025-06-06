@@ -21,5 +21,5 @@ def reformat(table: pd.DataFrame, bucket_name: str, s3_client: client) -> None:
     return s3_client.put_object(
         Bucket=bucket_name,
         Key=f"data-{my_datetime}.snappy.parquet",
-        Body=str(parquet_format),
+        Body=parquet_format,
     )

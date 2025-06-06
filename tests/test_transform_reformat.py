@@ -6,7 +6,7 @@ import os
 from unittest.mock import patch
 from datetime import datetime
 import pandas as pd
-from pprint import pprint
+from io import BytesIO
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -39,20 +39,11 @@ def test_function_uploads_object_to_bucket(s3_client_with_bucket):
     assert int(response["KeyCount"]) >= 1
 
 
-# # @pytest.mark.skip()
-# def test_that_s3_data_is_immutable(s3_client_with_bucket):
-#     data_to_bucket(
-#         {"test_table": [{"test_column": "test_value"}]},
-#         "test_bucket",
-#         s3_client_with_bucket,
-#     )
-#     data_to_bucket(
-#         {"second_test_table": [{"second_test_column": "second_test_value"}]},
-#         "test_bucket",
-#         s3_client_with_bucket,
-#     )
-#     response = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")
-#     assert int(response["KeyCount"]) >= 2
+def test_that_s3_data_is_immutable(s3_client_with_bucket):
+    reformat(pd.DataFrame({"A": [1]}), "test-bucket", s3_client_with_bucket)
+    reformat(pd.DataFrame({"B": [2]}), "test-bucket", s3_client_with_bucket)
+    response = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")
+    assert int(response["KeyCount"]) >= 2
 
 
 # @pytest.mark.skip()
@@ -72,21 +63,10 @@ def test_table_is_in_parquet_format(s3_client_with_bucket):
         dt.now.return_value = datetime(2025, 5, 30)
         reformat(test_dataframe, "test-bucket", s3_client_with_bucket)
 
-    expected_parquet = test_dataframe.to_parquet()
-    key = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")
-    pprint(key)
-
-
-# # @pytest.mark.skip()
-# def test_format_of_data_is_correct(s3_client_with_bucket):
-#     data_to_bucket(
-#         {"test_table": [{"test_column": "test_value"}]},
-#         "test_bucket",
-#         s3_client_with_bucket,
-#     )
-#     key = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")["Contents"][0][
-#         "Key"
-#     ]
-#     response = s3_client_with_bucket.get_object(Bucket="test_bucket", Key=key)
-#     object = response["Body"].read().decode("utf-8")
-#     assert object == "{'test_table': [{'test_column': 'test_value'}]}"
+    key = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")["Contents"][0][
+        "Key"
+    ]
+    bucket_object = s3_client_with_bucket.get_object(Bucket="test-bucket", Key=key)
+    bucket_object = bucket_object["Body"].read()
+    output = pd.read_parquet(BytesIO(bucket_object))
+    pd.testing.assert_frame_equal(output, test_dataframe)
