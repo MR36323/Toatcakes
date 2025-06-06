@@ -1,4 +1,11 @@
 import pandas as pd
+import datetime 
+
+from boto3 import client
+import os
+from dotenv import load_dotenv
+import json 
+from io import BytesIO
 
 '''
 dim_staff -> staff, department
@@ -111,7 +118,7 @@ def create_dim_location(address: list) -> pd.DataFrame:
     dim_location_df.rename(columns={'address_id': 'location_id'}, inplace=True)
     return dim_location_df
 
-def create_dim_date(sale_order: list) -> pd.DataFrame:
+def create_dim_date(sales_orders: list) -> pd.DataFrame:
     """Create and populate new dimension date table.
 
     Args:
@@ -120,23 +127,96 @@ def create_dim_date(sale_order: list) -> pd.DataFrame:
     Returns:
       Pandas DataFrame object representing a sale_order dimension table.
     """
-    pass
+    dates = []
+    for sales_order in sales_orders:
+        for date_key in ('created_at', 
+                        'last_updated', 
+                        'agreed_delivery_date',
+                        'agreed_payment_date'):
+            date = sales_order[date_key]
+            if date not in dates:
+                dates.append(date)
+    
+    date_ids, years, months, days, days_of_week = [], [], [], [], []
+    day_names, month_names, quarters = [], [], []
 
-def create_fact_sales_order(sales_order: list) -> pd.DataFrame:
+    day_names_reference = (
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+    )
+    for date in dates:
+        date = date.split()[0]
+        split_date = date.split('-')
+
+        year = int(split_date[0])
+        month = int(split_date[1])
+        day = int(split_date[2])
+
+        date_ids.append(date)
+        years.append(year)
+        months.append(month)
+        days.append(day)
+
+        if month <= 3:
+            quarters.append(1)
+        elif month <= 6:
+            quarters.append(2)
+        elif month <= 9:
+            quarters.append(3)
+        elif month <= 12:
+            quarters.append(4)
+
+        date_object = datetime.date(year, month, day)
+        month_names.append(date_object.strftime("%B"))
+        day = date_object.strftime("%A")
+        day_names.append(day)
+        days_of_week.append(day_names_reference.index(day) + 1)
+
+    date_columns = {
+        'date_id': date_ids, 
+        'year': years, 
+        'month': months, 
+        'day': days, 
+        'day_of_week': days_of_week, 
+        'day_name': day_names, 
+        'month_name': month_names, 
+        'quarter': quarters
+    }   
+    dim_date_df = pd.DataFrame(date_columns)
+    return dim_date_df
+       
+
+def create_fact_sales_order(sales_order: list, previous_df: pd.DataFrame) -> pd.DataFrame:
     """Create and populate new fact sales_order table.
 
     Args:
       sales_order: Sales_order table in the form of a json listing.
+      current_record: current highest record_id
 
     Returns:
       Pandas DataFrame object representing a fact sales_order table.
     """
-    sales_order_df = pd.DataFrame(sales_order)
-    sales_order_df['sales_record_id'] = range(1, len(sales_order_df) + 1)
-    for row in sales_order_df:
-       row['created_date'], row['created_time'] = sales_order_df['created_at'].split(' ')
-
-
+    if len(previous_df) != 0:
+        previous_df = previous_df.drop(['sales_record_id'],axis=1)
+    new_df = pd.DataFrame(sales_order)
+    created_at_list = list(new_df['created_at'])
+    new_df['created_date'] = [date_time.split(' ')[0] for date_time in created_at_list]
+    new_df['created_time'] = [date_time.split(' ')[1] for date_time in created_at_list]
+    last_updated_list = list(new_df['last_updated'])
+    new_df['last_updated_date'] = [date_time.split(' ')[0] for date_time in last_updated_list]
+    new_df['last_updated_time'] = [date_time.split(' ')[1] for date_time in last_updated_list]
+    new_df = new_df.drop(['created_at', 'last_updated'], axis=1)
+    new_df.rename(columns={'staff_id': 'sales_staff_id'}, inplace=True)
+    fact_sales_df = pd.concat([previous_df, new_df],ignore_index=True)
+    fact_sales_df.drop_duplicates(inplace=True,ignore_index=True)
+    fact_sales_df['sales_record_id'] = range(1, len(fact_sales_df) + 1)
+    fact_sales_df = fact_sales_df[['sales_record_id','sales_order_id','created_date' ,'created_time', 'last_updated_date','last_updated_time','sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id','design_id', 'agreed_payment_date' ,'agreed_delivery_date','agreed_delivery_location_id' ]]
+    return fact_sales_df
 
 def get_latest_sales_record_id() -> int:
     """Get the latest sales record id from processed zone bucket.
@@ -160,4 +240,26 @@ def update_latest_sales_record_id(sales_record_id: int):
     Returns:
       None.
     """
+
+# lambda_handler():
+#     util gets most recent from tranform bucket as json converted to dataframe. get current      record id from key.
+# create_fact_sales_order(sales_order, current_record, current_df) 
+
+def get_latest_transformed_object_from_S3():
+    load_dotenv()
+
+    s3_client = client('s3')
+    
+    objects_response = s3_client.list_objects_v2(Bucket=os.environ.get('BUCKET'), Prefix='fact_sales_order')
+    
+    if objects_response['KeyCount'] == 0:
+        return pd.DataFrame()
+    
+    times_list = [obj['LastModified'] for obj in objects_response['Contents']]
+    
+    most_recent = max(times_list)
+    most_recent_key = [obj['Key'] for obj in objects_response['Contents'] if obj['LastModified'] == most_recent][0]
+    
+    current_data = s3_client.get_object(Bucket=os.environ.get('BUCKET'), Key=most_recent_key)['Body'].read()
+    return pd.read_parquet(BytesIO(current_data))
 

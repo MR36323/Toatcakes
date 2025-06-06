@@ -1,6 +1,7 @@
 from boto3 import client
 from datetime import datetime
 from botocore.exceptions import ClientError
+import json
 
 class DataIsNoneError(Exception):
     pass
@@ -11,7 +12,7 @@ class InvalidBucketError(Exception):
 def data_to_bucket(
         data: dict[str, list[dict]], 
         bucket_name: str,
-        s3_client
+        s3_client: client
 ) -> None:
     """Places extracted data in specified s3 bucket.
 
@@ -21,6 +22,7 @@ def data_to_bucket(
             in the db. The values, of type lists of dicts, contain
             the data of the corresponding db. 
         bucket_name: A string naming the target s3 bucket.
+        s3_client: A boto3 s3 client. 
 
     Returns:
         None.
@@ -32,10 +34,11 @@ def data_to_bucket(
     if data == None:
         raise DataIsNoneError('Data must not be None')
     
+    table_name = list(data.keys())[0]
 
     my_datetime = str(datetime.now()).replace(' ', '-')
     try:
-        return s3_client.put_object(Bucket=bucket_name, Key=f'data-{my_datetime}.json', Body=str(data))
+        return s3_client.put_object(Bucket=bucket_name, Key=f"{table_name}/{my_datetime}.json", Body=json.dumps(data, default=str).encode('utf-8'))
 
     except ClientError as exc:
         error_message = exc.response['Error']['Code']
