@@ -12,7 +12,7 @@ class InvalidBucketError(Exception):
 def data_to_bucket(
         data: dict[str, list[dict]], 
         bucket_name: str,
-        s3_client
+        s3_client: client
 ) -> None:
     """Places extracted data in specified s3 bucket.
 
@@ -22,6 +22,7 @@ def data_to_bucket(
             in the db. The values, of type lists of dicts, contain
             the data of the corresponding db. 
         bucket_name: A string naming the target s3 bucket.
+        s3_client: A boto3 s3 client. 
 
     Returns:
         None.
