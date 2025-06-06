@@ -7,6 +7,7 @@ import time
 import pandas as pd
 import boto3
 import datetime
+import botocore.client
 
 @pytest.fixture(scope='function',autouse=True)
 def aws_credentials():
@@ -18,6 +19,11 @@ def aws_credentials():
         os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
         os.environ["INGESTION_BUCKET"] = "test-ingestion-bucket"
         os.environ["PROCESSED_BUCKET"] = "test-processed-bucket"
+
+@pytest.fixture(scope='function')
+def s3_client(aws_credentials):
+    with mock_aws():
+        yield boto3.client('s3')
 
 @patch('src.transform.get_data')
 @patch('src.transform.create_dim_staff')
@@ -73,4 +79,30 @@ def test_funcs_called_required_amount(mock_reformat, mock_fact_sales, mock_lates
         assert all(item.call_count==1 for item in funcs)
         assert mock_get_data.call_count == 7
         assert mock_reformat.call_count == 7
+
+@patch('src.transform.client')
+@patch('src.transform.get_data')
+@patch('src.transform.create_dim_staff')
+@patch('src.transform.create_dim_counterparty')
+@patch('src.transform.create_dim_currency')
+@patch('src.transform.create_dim_design')
+@patch('src.transform.create_dim_location')
+@patch('src.transform.create_dim_date')
+@patch('src.transform.get_latest_transformed_object_from_S3')
+@patch('src.transform.create_fact_sales_order')
+@patch('src.transform.reformat')
+def test_reformat_takes_correct_args(mock_reformat, mock_fact_sales, mock_latest,mock_date,mock_loc,mock_design,mock_currency,mock_counterparty,mock_staff, mock_get_data,mock_client,s3_client):
+        mock_staff.return_value = pd.DataFrame([{'staff_id': ['val1','val2']}])
+        mock_counterparty.return_value = pd.DataFrame([{'cp_id': ['val1','val2']}])
+        mock_currency.return_value = pd.DataFrame([{'curr_id': ['val1','val2']}])
+        mock_design.return_value = pd.DataFrame([{'des_id': ['val1','val2']}])
+        mock_loc.return_value = pd.DataFrame([{'loc_id': ['val1','val2']}])
+        mock_date.return_value  = pd.DataFrame([{'date_id': ['val1','val2']}])
+        mock_fact_sales.return_value  = pd.DataFrame([{'fact_id': ['val1','val2']}])
+        mock_client.return_value = s3_client
+        lambda_handler({},{})
+        args = mock_reformat.call_args[0]
+        assert args[0].equals(pd.DataFrame([{'fact_id': ['val1','val2']}]))
+        assert args[1] == 'test-processed-bucket'
+        assert args[2] == s3_client
 
