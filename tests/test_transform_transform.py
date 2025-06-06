@@ -1,12 +1,12 @@
 from utils.transform_transform import (
-    create_dim_staff, 
-    create_dim_counterparty, 
-    create_dim_currency, 
-    create_dim_design, 
-    create_dim_location, 
-    create_dim_date, 
+    create_dim_staff,
+    create_dim_counterparty,
+    create_dim_currency,
+    create_dim_design,
+    create_dim_location,
+    create_dim_date,
     create_fact_sales_order,
-    get_latest_transformed_object_from_S3
+    get_latest_transformed_object_from_S3,
 )
 import pandas as pd
 import pandas.core.frame
@@ -19,6 +19,7 @@ import os
 import datetime
 from unittest.mock import patch
 import fastparquet
+
 
 class TestCreateDimStaff:
     @pytest.fixture
@@ -520,43 +521,108 @@ class TestCreateFactSalesOrder:
         result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
         assert type(result_df) == pandas.core.frame.DataFrame
 
-    def test_correct_clmn_names(self,test_data):
+    def test_correct_clmn_names(self, test_data):
         test_previous_data = []
         result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
-        assert list(result_df.columns.values) == ['sales_record_id', 'sales_order_id','created_date','created_time','last_updated_date','last_updated_time','sales_staff_id','counterparty_id','units_sold','unit_price','currency_id','design_id','agreed_payment_date','agreed_delivery_date','agreed_delivery_location_id']
+        assert list(result_df.columns.values) == [
+            "sales_record_id",
+            "sales_order_id",
+            "created_date",
+            "created_time",
+            "last_updated_date",
+            "last_updated_time",
+            "sales_staff_id",
+            "counterparty_id",
+            "units_sold",
+            "unit_price",
+            "currency_id",
+            "design_id",
+            "agreed_payment_date",
+            "agreed_delivery_date",
+            "agreed_delivery_location_id",
+        ]
 
     def test_correct_clmn_data_types(self, test_data):
         test_previous_data = []
         result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
-        assert type(result_df.loc[0]['sales_record_id']) == np.int64
-        assert type(result_df.loc[0]['sales_order_id']) == np.int64
-        assert type(result_df.loc[0]['created_date']) == str
-        assert type(result_df.loc[0]['created_time']) == str
-        assert type(result_df.loc[0]['last_updated_date']) == str
-        assert type(result_df.loc[0]['last_updated_time']) == str
-        assert type(result_df.loc[0]['sales_staff_id']) == np.int64
-        assert type(result_df.loc[0]['counterparty_id']) == np.int64
-        assert type(result_df.loc[0]['units_sold']) == np.int64
-        assert type(result_df.loc[0]['unit_price']) == str
-        assert type(result_df.loc[0]['currency_id']) == np.int64
-        assert type(result_df.loc[0]['design_id']) == np.int64
-        assert type(result_df.loc[0]['agreed_payment_date']) == str
-        assert type(result_df.loc[0]['agreed_delivery_location_id']) == np.int64
+        assert type(result_df.loc[0]["sales_record_id"]) == np.int64
+        assert type(result_df.loc[0]["sales_order_id"]) == np.int64
+        assert type(result_df.loc[0]["created_date"]) == str
+        assert type(result_df.loc[0]["created_time"]) == str
+        assert type(result_df.loc[0]["last_updated_date"]) == str
+        assert type(result_df.loc[0]["last_updated_time"]) == str
+        assert type(result_df.loc[0]["sales_staff_id"]) == np.int64
+        assert type(result_df.loc[0]["counterparty_id"]) == np.int64
+        assert type(result_df.loc[0]["units_sold"]) == np.int64
+        assert type(result_df.loc[0]["unit_price"]) == str
+        assert type(result_df.loc[0]["currency_id"]) == np.int64
+        assert type(result_df.loc[0]["design_id"]) == np.int64
+        assert type(result_df.loc[0]["agreed_payment_date"]) == str
+        assert type(result_df.loc[0]["agreed_delivery_location_id"]) == np.int64
 
-#refactor to loop through columns and rows
+    # refactor to loop through columns and rows
 
-    def test_correct_data_values_for_new_and_updates_records(self, test_data, test_previous_data):
+    def test_correct_data_values_for_new_and_updates_records(
+        self, test_data, test_previous_data
+    ):
         result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
         row_list = []
-        
+
         for i in range(len(result_df)):
             row_list.append(result_df.loc[i, :].values.tolist())
-        assert row_list[0] == [np.int64(1),np.int64(2),'2022-11-03','14:20:49.962000','2022-11-04','14:20:49.962000', np.int64(19),np.int64(8),np.int64(42972),'3.94',np.int64(2),np.int64(3),'2022-11-08','2022-11-07',np.int64(8)]
-        assert row_list[1] == [np.int64(2),np.int64(3),'2022-12-03','14:20:49.962000','2022-12-04','14:20:49.962000',np.int64(10),np.int64(4),np.int64(65839),'5.50',np.int64(3),np.int64(4),'2022-11-07','2022-11-06',np.int64(19)]
-        assert row_list[2] == [np.int64(3),np.int64(3),'2022-12-03','14:20:49.962000','2022-12-04','14:20:49.962000',np.int64(10),np.int64(4),np.int64(65839),'2.91',np.int64(3),np.int64(4),'2022-11-07','2022-11-06',np.int64(19) ]
+        assert row_list[0] == [
+            np.int64(1),
+            np.int64(2),
+            "2022-11-03",
+            "14:20:49.962000",
+            "2022-11-04",
+            "14:20:49.962000",
+            np.int64(19),
+            np.int64(8),
+            np.int64(42972),
+            "3.94",
+            np.int64(2),
+            np.int64(3),
+            "2022-11-08",
+            "2022-11-07",
+            np.int64(8),
+        ]
+        assert row_list[1] == [
+            np.int64(2),
+            np.int64(3),
+            "2022-12-03",
+            "14:20:49.962000",
+            "2022-12-04",
+            "14:20:49.962000",
+            np.int64(10),
+            np.int64(4),
+            np.int64(65839),
+            "5.50",
+            np.int64(3),
+            np.int64(4),
+            "2022-11-07",
+            "2022-11-06",
+            np.int64(19),
+        ]
+        assert row_list[2] == [
+            np.int64(3),
+            np.int64(3),
+            "2022-12-03",
+            "14:20:49.962000",
+            "2022-12-04",
+            "14:20:49.962000",
+            np.int64(10),
+            np.int64(4),
+            np.int64(65839),
+            "2.91",
+            np.int64(3),
+            np.int64(4),
+            "2022-11-07",
+            "2022-11-06",
+            np.int64(19),
+        ]
 
-
-# class TestLatestGetSalesRecordId:
+    # class TestLatestGetSalesRecordId:
 
     def test_gets_latest_record_id_if_already_present(self): ...
 
@@ -569,19 +635,21 @@ class TestUpdateLatestSalesRecordId:
 
     def test_update_latest_record_id_if_not_already_present(self): ...
 
+
 #     def test_update_latest_record_id_if_not_already_present(self):
 #         ...
+
 
 class TestGetLatestTransformedObject:
     @pytest.fixture
     def test_data1(self):
-        return ({'A': [0, 2, 4],
-                   'D': [120, 180, 40]})    
+        return {"A": [0, 2, 4], "D": [120, 180, 40]}
+
     @pytest.fixture
     def test_data2(self):
-        return ({'B': [0, 2, 4],
-                'C': [120, 180, 40]})  
-    @pytest.fixture(scope='function',autouse=True)
+        return {"B": [0, 2, 4], "C": [120, 180, 40]}
+
+    @pytest.fixture(scope="function", autouse=True)
     def aws_credentials(self):
         """Mocked AWS Credentials for moto."""
         os.environ["AWS_ACCESS_KEY_ID"] = "testing"
@@ -591,40 +659,54 @@ class TestGetLatestTransformedObject:
         os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
         os.environ["BUCKET"] = "test-bucket"
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture(scope="function")
     def s3_client(self, aws_credentials):
         with mock_aws():
-            yield boto3.client('s3')
+            yield boto3.client("s3")
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture(scope="function")
     def s3_client_with_bucket(self, s3_client):
-        s3_client.create_bucket(Bucket='test-bucket')
+        s3_client.create_bucket(Bucket="test-bucket")
         yield s3_client
-    
-    @pytest.fixture(scope='function')
-    def s3_client_with_bucket_with_objects(self, s3_client_with_bucket,test_data1,test_data2):
+
+    @pytest.fixture(scope="function")
+    def s3_client_with_bucket_with_objects(
+        self, s3_client_with_bucket, test_data1, test_data2
+    ):
         df1 = pd.DataFrame(test_data1)
         df2 = pd.DataFrame(test_data2)
-        
-        s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'fact_sales_order{datetime.datetime(2025, 1, 1)}', Body=df1.to_parquet(engine='fastparquet'))
+
+        s3_client_with_bucket.put_object(
+            Bucket="test-bucket",
+            Key=f"fact_sales_order{datetime.datetime(2025, 1, 1)}",
+            Body=df1.to_parquet(engine="fastparquet"),
+        )
         time.sleep(1)
-        s3_client_with_bucket.put_object(Bucket='test-bucket', Key=f'fact_sales_order{datetime.datetime(2025, 1, 2)}', Body=df2.to_parquet(engine='fastparquet'))
+        s3_client_with_bucket.put_object(
+            Bucket="test-bucket",
+            Key=f"fact_sales_order{datetime.datetime(2025, 1, 2)}",
+            Body=df2.to_parquet(engine="fastparquet"),
+        )
         yield s3_client_with_bucket
-    
-    @patch('utils.transform_transform.client')
-    def test_returns_a_dataframe(self,mock_client,s3_client_with_bucket_with_objects):
+
+    @patch("utils.transform_transform.client")
+    def test_returns_a_dataframe(self, mock_client, s3_client_with_bucket_with_objects):
         mock_client.return_value = s3_client_with_bucket_with_objects
         result = get_latest_transformed_object_from_S3()
         assert type(result) == pandas.core.frame.DataFrame
 
-    @patch('utils.transform_transform.client')
-    def test_returns_the_recently_added_dataframe(self,mock_client,s3_client_with_bucket_with_objects,test_data2):
+    @patch("utils.transform_transform.client")
+    def test_returns_the_recently_added_dataframe(
+        self, mock_client, s3_client_with_bucket_with_objects, test_data2
+    ):
         mock_client.return_value = s3_client_with_bucket_with_objects
         result = get_latest_transformed_object_from_S3()
         assert result.equals(pd.DataFrame(test_data2))
 
-    @patch('utils.transform_transform.client')
-    def test_returns_None_when_bucket_is_empty(self,mock_client,s3_client_with_bucket,test_data2):
+    @patch("utils.transform_transform.client")
+    def test_returns_None_when_bucket_is_empty(
+        self, mock_client, s3_client_with_bucket, test_data2
+    ):
         mock_client.return_value = s3_client_with_bucket
         result = get_latest_transformed_object_from_S3()
         assert len(result) == 0

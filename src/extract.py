@@ -9,6 +9,7 @@ import boto3
 import os
 from dotenv import load_dotenv
 
+
 def lambda_handler(event, context):
     load_dotenv()
     conn = make_connection()
@@ -31,25 +32,15 @@ def lambda_handler(event, context):
     #                   AND table_name != '_prisma_migrations'""")
     # extra line
 
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client("s3")
     for table in tables:
         new_data = get_data(conn, f"SELECT * FROM {table}", table)
         if check_data_updates(new_data):
-            data_to_bucket(new_data, os.environ.get('BUCKET'), s3_client)
+            data_to_bucket(new_data, os.environ.get("BUCKET"), s3_client)
 
     close_connection(conn)
 
 
+# input_data = {table_name: get_data(conn, f"SELECT * FROM {table_name}", table_name)[table_name] for table_name in tables}
 
-
-
-
-
-
-
-
-
-
-  # input_data = {table_name: get_data(conn, f"SELECT * FROM {table_name}", table_name)[table_name] for table_name in tables}
-
-    # data_to_bucket(input_data, "ingestion-zone-bucket-20250530145907229100000002", s3_client)
+# data_to_bucket(input_data, "ingestion-zone-bucket-20250530145907229100000002", s3_client)
