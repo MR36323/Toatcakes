@@ -56,7 +56,7 @@ def test_function_uploads_object_to_bucket(s3_client_with_bucket):
         s3_client_with_bucket,
     )
     response = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")
-    assert "data" in response["Contents"][0]["Key"]
+    assert "test_table" in response["Contents"][0]["Key"]
     assert int(response["KeyCount"]) >= 1
 
 
@@ -88,7 +88,7 @@ def test_naming_convention_of_bucket_objects(s3_client_with_bucket):
     key = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")["Contents"][0][
         "Key"
     ]
-    assert key == "data-2025-05-30-00:00:00.json"
+    assert key == "test_table/2025-05-30-00:00:00.json"
 
 
 # @pytest.mark.skip()
