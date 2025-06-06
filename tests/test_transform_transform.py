@@ -166,23 +166,64 @@ class TestCreateDimLocation:
         result_df = create_dim_location(test_data)
         row_list_0 = result_df.loc[0, :].values.tolist()
         assert row_list_0 == [1, 'test_1', 'test_2', 'test_district', 'test_city', 'test_code','test_country', 'test_number']
-
     
 
-# class TestCreateDimDate:
+class TestCreateDimDate:
+
+    def test_output_is_of_type_dataframe(self):
+        test_input = [{"sales_order_id": 2, "created_at": "2022-11-03 14:20:52.186000", "last_updated": "2022-11-03 14:20:52.186000", "design_id": 3, "staff_id": 19, "counterparty_id": 8, "units_sold": 42972, "unit_price": "3.94", "currency_id": 2, "agreed_delivery_date": "2022-11-07", "agreed_payment_date": "2022-11-08", "agreed_delivery_location_id": 8}]
+        response = create_dim_date(test_input)
+        assert isinstance(response, pd.DataFrame)
+
+    def test_correct_clmn_names_are_returned(self):
+        test_input = [{"sales_order_id": 2, "created_at": "2022-11-03 14:20:52.186000", "last_updated": "2022-11-03 14:20:52.186000", "design_id": 3, "staff_id": 19, "counterparty_id": 8, "units_sold": 42972, "unit_price": "3.94", "currency_id": 2, "agreed_delivery_date": "2022-11-07", "agreed_payment_date": "2022-11-08", "agreed_delivery_location_id": 8}]
+        response = create_dim_date(test_input)
+        assert list(response.columns) == ['date_id', 'year', 'month', 'day', 'day_of_week', 'day_name', 'month_name', 'quarter']
+        
+    def test_correct_number_of_values(self):
+        test_input = [{
+                    "sales_order_id": 2, 
+                    "created_at": "2022-11-03 14:20:52.186000", 
+                    "last_updated": "2022-11-03 14:20:52.186000", 
+                    "design_id": 3, 
+                    "staff_id": 19, 
+                    "counterparty_id": 8, 
+                    "units_sold": 42972, 
+                    "unit_price": "3.94",
+                    "currency_id": 2, 
+                    "agreed_delivery_date": "2022-11-07", 
+                    "agreed_payment_date": "2022-11-08", 
+                    "agreed_delivery_location_id": 8
+                }]
+        assert len(create_dim_date(test_input)) == 3
     
-#     def test_output_is_of_type_dataframe(self):
-#         ...
-
-#     def test_correct_clmn_names(self):
-#         ...
-
-#     def test_correct_clmn_data_types(self):
-#         ...
-
-#     def test_correct_data_values(self):
-#         ...    
-
+    def test_correct_values(self):
+        test_input = [{
+                    "sales_order_id": 2, 
+                    "created_at": "2022-11-03 14:20:52.186000", 
+                    "last_updated": "2022-11-03 14:20:52.186000", 
+                    "design_id": 3, 
+                    "staff_id": 19, 
+                    "counterparty_id": 8, 
+                    "units_sold": 42972, 
+                    "unit_price": "3.94",
+                    "currency_id": 2, 
+                    "agreed_delivery_date": "2022-11-07", 
+                    "agreed_payment_date": "2022-11-08", 
+                    "agreed_delivery_location_id": 8
+                }]
+        expected = pd.DataFrame({
+            'date_id': ["2022-11-03", "2022-11-07", "2022-11-08"],
+            'year': [2022, 2022, 2022],
+            'month': [11, 11, 11],
+            'day': [3, 7, 8],
+            'day_of_week': [4, 1, 2],
+            'day_name': ['Thursday', 'Monday', 'Tuesday'],
+            'month_name': ['November', 'November', 'November'],
+            'quarter': [4, 4, 4]
+        })
+        pd.testing.assert_frame_equal(create_dim_date(test_input), expected)
+        
 
 class TestCreateFactSalesOrder:
     @pytest.fixture
@@ -238,17 +279,17 @@ class TestCreateFactSalesOrder:
 
 # class TestLatestGetSalesRecordId:
 
-#     def test_gets_latest_record_id_if_already_present(self):
-#         ...
+    def test_gets_latest_record_id_if_already_present(self):
+        ...
 
-#     def test_raises_exception_if_record_id_not_already_present(self):
-#         ...
+    def test_raises_exception_if_record_id_not_already_present(self):
+        ...
 
 
-# class TestUpdateLatestSalesRecordId:
+class TestUpdateLatestSalesRecordId:
 
-#     def test_update_latest_record_id_if_already_present(self):
-#         ...
+    def test_update_latest_record_id_if_already_present(self):
+        ...
 
 #     def test_update_latest_record_id_if_not_already_present(self):
 #         ...
