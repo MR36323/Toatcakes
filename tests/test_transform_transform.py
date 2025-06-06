@@ -180,7 +180,6 @@ class TestCreateDimCounterparty:
         ]
 
 
-@pytest.mark.skip
 class TestCreateDimCurrency:
 
     def test_output_is_of_type_dataframe(self):

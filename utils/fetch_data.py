@@ -1,6 +1,5 @@
 from pg8000.native import Connection
 from pg8000.exceptions import InterfaceError, DatabaseError
-import os
 from dotenv import load_dotenv
 import boto3
 from botocore.exceptions import ClientError
@@ -32,7 +31,7 @@ def make_connection() -> Connection:
             port=secrets_info["port"],
         )
         return conn
-    except (InterfaceError, Exception) as e:
+    except (Exception) as e:
         print(f"An error occured: {e}")
         raise e
 
