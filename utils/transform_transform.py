@@ -1,5 +1,5 @@
 import pandas as pd
-import datetime 
+import datetime
 
 
 def create_dim_staff(staff: list, department: list) -> pd.DataFrame:
@@ -14,9 +14,20 @@ def create_dim_staff(staff: list, department: list) -> pd.DataFrame:
     """
     staff_df = pd.DataFrame(staff)
     department_df = pd.DataFrame(department)
-    dim_staff_df = pd.merge(staff_df,department_df,on='department_id')
-    dim_staff_df = dim_staff_df.drop(['department_id','manager','created_at_x','last_updated_y','created_at_y','last_updated_x'],axis=1)
+    dim_staff_df = pd.merge(staff_df, department_df, on="department_id")
+    dim_staff_df = dim_staff_df.drop(
+        [
+            "department_id",
+            "manager",
+            "created_at_x",
+            "last_updated_y",
+            "created_at_y",
+            "last_updated_x",
+        ],
+        axis=1,
+    )
     return dim_staff_df
+
 
 def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     """Create and populate new dimension counterparty table.
@@ -30,17 +41,37 @@ def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     """
     counterparty_df = pd.DataFrame(counterparty)
     address_df = pd.DataFrame(address)
-    dim_counterparty_df = pd.merge(counterparty_df,address_df,left_on='legal_address_id',right_on='address_id')
-    dim_counterparty_df = dim_counterparty_df.drop(['address_id','legal_address_id','commercial_contact','delivery_contact','created_at_x','last_updated_y','created_at_y','last_updated_x',],axis=1)
-    
-    dim_counterparty_df.rename(columns={'address_line_1': 'counterparty_legal_address_line_1',
-                                        'address_line_2':'counterparty_legal_address_line_2',
-                                        'district':'counterparty_legal_district',
-                                        'city':'counterparty_legal_city',
-                                        'postal_code':'counterparty_legal_postal_code',
-                                        'country':'counterparty_legal_country',
-                                        'phone':'counterparty_legal_phone_number'}, inplace=True)
+    dim_counterparty_df = pd.merge(
+        counterparty_df, address_df, left_on="legal_address_id", right_on="address_id"
+    )
+    dim_counterparty_df = dim_counterparty_df.drop(
+        [
+            "address_id",
+            "legal_address_id",
+            "commercial_contact",
+            "delivery_contact",
+            "created_at_x",
+            "last_updated_y",
+            "created_at_y",
+            "last_updated_x",
+        ],
+        axis=1,
+    )
+
+    dim_counterparty_df.rename(
+        columns={
+            "address_line_1": "counterparty_legal_address_line_1",
+            "address_line_2": "counterparty_legal_address_line_2",
+            "district": "counterparty_legal_district",
+            "city": "counterparty_legal_city",
+            "postal_code": "counterparty_legal_postal_code",
+            "country": "counterparty_legal_country",
+            "phone": "counterparty_legal_phone_number",
+        },
+        inplace=True,
+    )
     return dim_counterparty_df
+
 
 def create_dim_currency(currency: list) -> pd.DataFrame:
     """Create and populate new dimension currency table.
@@ -54,18 +85,19 @@ def create_dim_currency(currency: list) -> pd.DataFrame:
 
     currency_name = {
         "GBP": "British pound sterling",
-        "USD":  "United States dollar",
-        "EUR":  "Euro"
+        "USD": "United States dollar",
+        "EUR": "Euro",
     }
 
     dim_currency_df = pd.DataFrame(currency)
-    dim_currency_df = dim_currency_df.drop(['created_at', 'last_updated'], axis=1)
+    dim_currency_df = dim_currency_df.drop(["created_at", "last_updated"], axis=1)
 
-    dim_currency_df['currency_name'] = dim_currency_df['currency_code'].map(currency_name)
+    dim_currency_df["currency_name"] = dim_currency_df["currency_code"].map(
+        currency_name
+    )
     dim_currency_df = dim_currency_df.fillna("Unknown")
-    
-    return dim_currency_df
 
+    return dim_currency_df
 
 
 def create_dim_design(design: list) -> pd.DataFrame:
@@ -78,8 +110,9 @@ def create_dim_design(design: list) -> pd.DataFrame:
       Pandas DataFrame object representing a design dimension table.
     """
     design_df = pd.DataFrame(design)
-    dim_design_df = design_df.drop(['created_at', 'last_updated'], axis=1)
+    dim_design_df = design_df.drop(["created_at", "last_updated"], axis=1)
     return dim_design_df
+
 
 def create_dim_location(address: list) -> pd.DataFrame:
     """Create and populate new dimension address table.
@@ -91,9 +124,10 @@ def create_dim_location(address: list) -> pd.DataFrame:
       Pandas DataFrame object representing a location dimension table.
     """
     address_df = pd.DataFrame(address)
-    dim_location_df = address_df.drop(['created_at', 'last_updated'], axis=1)
-    dim_location_df.rename(columns={'address_id': 'location_id'}, inplace=True)
+    dim_location_df = address_df.drop(["created_at", "last_updated"], axis=1)
+    dim_location_df.rename(columns={"address_id": "location_id"}, inplace=True)
     return dim_location_df
+
 
 def create_dim_date(sales_orders: list) -> pd.DataFrame:
     """Create and populate new dimension date table.
@@ -106,29 +140,31 @@ def create_dim_date(sales_orders: list) -> pd.DataFrame:
     """
     dates = []
     for sales_order in sales_orders:
-        for date_key in ('created_at', 
-                        'last_updated', 
-                        'agreed_delivery_date',
-                        'agreed_payment_date'):
+        for date_key in (
+            "created_at",
+            "last_updated",
+            "agreed_delivery_date",
+            "agreed_payment_date",
+        ):
             date = sales_order[date_key]
             if date not in dates:
                 dates.append(date)
-    
+
     date_ids, years, months, days, days_of_week = [], [], [], [], []
     day_names, month_names, quarters = [], [], []
 
     day_names_reference = (
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
     )
     for date in dates:
         date = date.split()[0]
-        split_date = date.split('-')
+        split_date = date.split("-")
 
         year = int(split_date[0])
         month = int(split_date[1])
@@ -155,18 +191,18 @@ def create_dim_date(sales_orders: list) -> pd.DataFrame:
         days_of_week.append(day_names_reference.index(day) + 1)
 
     date_columns = {
-        'date_id': date_ids, 
-        'year': years, 
-        'month': months, 
-        'day': days, 
-        'day_of_week': days_of_week, 
-        'day_name': day_names, 
-        'month_name': month_names, 
-        'quarter': quarters
-    }   
+        "date_id": date_ids,
+        "year": years,
+        "month": months,
+        "day": days,
+        "day_of_week": days_of_week,
+        "day_name": day_names,
+        "month_name": month_names,
+        "quarter": quarters,
+    }
     dim_date_df = pd.DataFrame(date_columns)
     return dim_date_df
-       
+
 
 def create_fact_sales_order(sales_order: list) -> pd.DataFrame:
     """Create and populate new fact sales_order table.
@@ -178,16 +214,17 @@ def create_fact_sales_order(sales_order: list) -> pd.DataFrame:
       Pandas DataFrame object representing a fact sales_order table.
     """
     sales_order_df = pd.DataFrame(sales_order)
-    sales_order_df['sales_record_id'] = range(1, len(sales_order_df) + 1)
+    sales_order_df["sales_record_id"] = range(1, len(sales_order_df) + 1)
     for row in sales_order_df:
-       row['created_date'], row['created_time'] = sales_order_df['created_at'].split(' ')
-
+        row["created_date"], row["created_time"] = sales_order_df["created_at"].split(
+            " "
+        )
 
 
 def get_latest_sales_record_id() -> int:
     """Get the latest sales record id from processed zone bucket.
 
-    Args: 
+    Args:
       None.
 
     Returns:
@@ -197,13 +234,13 @@ def get_latest_sales_record_id() -> int:
       Exception.
     """
 
+
 def update_latest_sales_record_id(sales_record_id: int):
     """Put the latest sales record id into processed zone bucket.
 
-    Args: 
+    Args:
       sales_record_id: The latest sales record id.
 
     Returns:
       None.
     """
-

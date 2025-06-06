@@ -6,6 +6,7 @@ import boto3
 from botocore.exceptions import ClientError
 import json
 
+
 def make_connection() -> Connection:
     """Connects to the database.
 
@@ -19,21 +20,22 @@ def make_connection() -> Connection:
       InterfaceError: If credentials are incorrect.
     """
 
-    secrets_info = get_secret('prod/totesys','eu-west-2')
-    
+    secrets_info = get_secret("prod/totesys", "eu-west-2")
+
     load_dotenv()
     try:
         conn = Connection(
-            user = secrets_info['username'],
-            password = secrets_info['password'],
-            database = secrets_info['dbname'],
-            host = secrets_info['host'],
-            port = secrets_info['port']
+            user=secrets_info["username"],
+            password=secrets_info["password"],
+            database=secrets_info["dbname"],
+            host=secrets_info["host"],
+            port=secrets_info["port"],
         )
         return conn
     except (InterfaceError, Exception) as e:
-        print(f'An error occured: {e}')
+        print(f"An error occured: {e}")
         raise e
+
 
 def close_connection(conn: Connection):
     """Closes connection to database.
@@ -52,8 +54,9 @@ def close_connection(conn: Connection):
     try:
         conn.close()
     except (AttributeError, InterfaceError, Exception) as e:
-        print(f'An error occured: {e}')
+        print(f"An error occured: {e}")
         raise e
+
 
 def zip_rows_and_columns(rows: list, columns: dict) -> list[dict]:
     """Maps the data in rows and column names.
@@ -66,6 +69,7 @@ def zip_rows_and_columns(rows: list, columns: dict) -> list[dict]:
       Dictionary with data from rows and columns are mapped.
     """
     return [dict(zip(columns, row)) for row in rows]
+
 
 def get_data(conn: Connection, query: str, table_name: str) -> dict:
     """Gets rows and columns from table in database.
@@ -83,13 +87,14 @@ def get_data(conn: Connection, query: str, table_name: str) -> dict:
     """
     try:
         rows = conn.run(query)
-        columns = [row['name'] for row in conn.columns]
+        columns = [row["name"] for row in conn.columns]
         data = zip_rows_and_columns(rows, columns)
         return {table_name: data}
     except (DatabaseError, Exception) as e:
-        print(f'An error occured: {e}')
+        print(f"An error occured: {e}")
         raise e
- 
+
+
 def get_secret(secret_name: str, region_name: str) -> dict:
     """Retrieves secret from the AWS secrets manager.
 
@@ -104,19 +109,13 @@ def get_secret(secret_name: str, region_name: str) -> dict:
       ClientError: If anything goes wrong.
     """
     session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
+    client = session.client(service_name="secretsmanager", region_name=region_name)
 
     try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
+        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as e:
         print(f"ERROR :{e}")
         raise e
 
-    secret = get_secret_value_response['SecretString']
+    secret = get_secret_value_response["SecretString"]
     return json.loads(secret)
-
