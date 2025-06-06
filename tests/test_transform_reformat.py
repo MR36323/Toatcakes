@@ -9,7 +9,6 @@ import pandas as pd
 from pprint import pprint
 
 
-
 @pytest.fixture(scope="function", autouse=True)
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
@@ -57,7 +56,7 @@ def test_function_uploads_object_to_bucket(s3_client_with_bucket):
 
 
 # @pytest.mark.skip()
-def test_naming_convention_of_bucket_objects(s3_client_with_bucket): #=
+def test_naming_convention_of_bucket_objects(s3_client_with_bucket):  # =
     with patch("utils.transform_reformat.datetime") as dt:
         dt.now.return_value = datetime(2025, 5, 30)
         reformat(pd.DataFrame(), "test-bucket", s3_client_with_bucket)
@@ -66,11 +65,9 @@ def test_naming_convention_of_bucket_objects(s3_client_with_bucket): #=
     ]
     assert key == "data-2025-05-30-00:00:00.snappy.parquet"
 
+
 def test_table_is_in_parquet_format(s3_client_with_bucket):
-    test_dataframe = pd.DataFrame({
-        "A": [1, 2, 3],
-        "B": [1, 2, 3]
-        })
+    test_dataframe = pd.DataFrame({"A": [1, 2, 3], "B": [1, 2, 3]})
     with patch("utils.transform_reformat.datetime") as dt:
         dt.now.return_value = datetime(2025, 5, 30)
         reformat(test_dataframe, "test-bucket", s3_client_with_bucket)
@@ -78,7 +75,6 @@ def test_table_is_in_parquet_format(s3_client_with_bucket):
     expected_parquet = test_dataframe.to_parquet()
     key = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")
     pprint(key)
-    
 
 
 # # @pytest.mark.skip()
