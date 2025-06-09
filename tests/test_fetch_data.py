@@ -16,11 +16,12 @@ from botocore.exceptions import ClientError
 
 
 class TestMakeConnection:
-
-    @patch("utils.fetch_data.Connection")
     @patch("utils.fetch_data.get_secret")
-    def test_returns_a_connection_object(self, mock_get_secret, mock_connection):
-        mock_get_secret.return_value = {
+    @patch("utils.fetch_data.Connection")
+    def test_returns_a_connection_object(self, mock_connection, mock_secret):
+        mock_conn = Mock()
+        mock_connection.return_value = mock_conn
+        mock_secret.return_value = {
             "username": "test_username",
             "password": "123",
             "engine": "postgres",
@@ -28,16 +29,23 @@ class TestMakeConnection:
             "port": 5432,
             "dbname": "test_DB",
         }
-        mock_conn = Mock()
-        mock_connection.return_value = mock_conn
         conn = make_connection()
         assert conn is mock_conn
         close_connection(conn)
 
+    @patch("utils.fetch_data.get_secret")
     @patch("utils.fetch_data.Connection")
-    def test_raises_exception(self, mock_connection):
-        mock_connection.side_effect = Exception
-        with pytest.raises(Exception):
+    def test_raises_exception(self, mock_connection, mock_secret):
+        mock_secret.return_value = {
+            "username": "test_username",
+            "password": "123",
+            "engine": "postgres",
+            "host": "test_host.amazonaws.com",
+            "port": 5432,
+            "dbname": "test_DB",
+        }
+        mock_connection.side_effect = InterfaceError("test error")
+        with pytest.raises(InterfaceError):
             make_connection()
 
 

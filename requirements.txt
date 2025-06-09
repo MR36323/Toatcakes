@@ -1,7 +1,9 @@
 boto3>=1.37.4
 moto>=5.1.1
 pytest>=8.3.5
+pytest-cov
 pg8000>=1.31.2
 python-dotenv
 pandas>=2.2
 fastparquet
+flake8

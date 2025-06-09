@@ -1,13 +1,12 @@
 import sys
-
-sys.path.append("/opt/python")
-
 from utils.fetch_data import make_connection, close_connection, get_data
 from utils.data_to_bucket import data_to_bucket
 from utils.check_data_updates import check_data_updates
 import boto3
 import os
 from dotenv import load_dotenv
+
+sys.path.append("/opt/python")
 
 
 def lambda_handler(event, context):
@@ -41,6 +40,16 @@ def lambda_handler(event, context):
     close_connection(conn)
 
 
-# input_data = {table_name: get_data(conn, f"SELECT * FROM {table_name}", table_name)[table_name] for table_name in tables}
 
-# data_to_bucket(input_data, "ingestion-zone-bucket-20250530145907229100000002", s3_client)
+
+
+
+
+
+
+
+
+
+  # input_data = {table_name: get_data(conn, f"SELECT * FROM {table_name}", table_name)[table_name] for table_name in tables}
+
+    # data_to_bucket(input_data, "ingestion-zone-bucket-20250530145907229100000002", s3_client)

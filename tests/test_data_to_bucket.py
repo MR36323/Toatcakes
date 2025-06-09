@@ -85,9 +85,8 @@ def test_naming_convention_of_bucket_objects(s3_client_with_bucket):
             "test_bucket",
             s3_client_with_bucket,
         )
-    key = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")["Contents"][0][
-        "Key"
-    ]
+    key = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")
+    ["Contents"][0]["Key"]
     assert key == "test_table/2025-05-30-00:00:00.json"
 
 
@@ -98,9 +97,8 @@ def test_format_of_data_is_correct(s3_client_with_bucket):
         "test_bucket",
         s3_client_with_bucket,
     )
-    key = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")["Contents"][0][
-        "Key"
-    ]
+    key = s3_client_with_bucket.list_objects_v2(Bucket="test_bucket")
+    ["Contents"][0]["Key"]
     response = s3_client_with_bucket.get_object(Bucket="test_bucket", Key=key)
     object = response["Body"].read().decode("utf-8")
-    assert object == "{'test_table': [{'test_column': 'test_value'}]}"
+    assert object == '{"test_table": [{"test_column": "test_value"}]}'

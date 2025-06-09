@@ -67,19 +67,19 @@ security-test:
 
 ## Run the black code check
 run-black:
-	$(call execute_in_env, black  ./src/*.py ./tests/*.py)
+	$(call execute_in_env, black  ./src/*.py ./tests/*.py ./utils/*.py)
 
 ## Run the unit tests
 unit-test:
-	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src tests/ -vv)
+	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest tests/ -vv)
 
 ## Run the coverage check
 check-coverage:
-	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src tests/)
+	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src --cov=utils tests/)
 
 ## Run the flake8 check
 run-flake8:
-	$(call execute_in_env, flake8  ./src/*.py ./tests/*.py)
+	$(call execute_in_env, flake8  ./src/*.py ./tests/*.py ./utils/*.py)
 
 ## Run all checks
 run-checks: security-test run-black unit-test check-coverage run-flake8

@@ -3,9 +3,6 @@ import os
 from dotenv import load_dotenv
 from boto3 import client
 from botocore.exceptions import ClientError
-
-sys.path.append("/opt/python")
-
 from utils.transform_transform import (
     create_dim_staff,
     create_dim_counterparty,
@@ -20,7 +17,11 @@ from utils.transform_reformat import reformat
 from utils.transform_get_from_ingestion_s3 import get_data
 
 
-def lambda_handler(event, context):
+sys.path.append("/opt/python")
+
+
+def lambda_handler(event,  context):
+    load_dotenv()
     tables = [
         "counterparty",
         "currency",
@@ -34,7 +35,8 @@ def lambda_handler(event, context):
         table_name: get_data(table_name, os.environ.get("INGESTION_BUCKET"))
         for table_name in tables
     }
-    dim_staff_df = create_dim_staff(input_data["staff"], input_data["department"])
+    dim_staff_df = create_dim_staff(input_data["staff"],
+                                    input_data["department"])
     dim_counterparty_df = create_dim_counterparty(
         input_data["counterparty"], input_data["address"]
     )
@@ -43,7 +45,8 @@ def lambda_handler(event, context):
     dim_location_df = create_dim_location(input_data["address"])
     dim_date_df = create_dim_date(input_data["sales_order"])
     previous_fact_df = get_latest_transformed_object_from_S3()
-    fact_sales_df = create_fact_sales_order(input_data["sales_order"], previous_fact_df)
+    fact_sales_df = create_fact_sales_order(input_data["sales_order"],
+                                            previous_fact_df)
     dataframes = [
         dim_staff_df,
         dim_counterparty_df,
@@ -62,3 +65,8 @@ def lambda_handler(event, context):
     except ClientError as exc:
         print(exc)
         raise
+
+
+
+
+    
