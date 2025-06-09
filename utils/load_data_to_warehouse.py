@@ -28,9 +28,8 @@ def get_secret(secret_name: str, region_name: str) -> dict:
     Raises:
       ClientError: If anything goes wrong.
     """
-  # WHY IS THIS DUPLICATED?
   
-    session = boto3.session.Session()
+    session = session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
     try:
