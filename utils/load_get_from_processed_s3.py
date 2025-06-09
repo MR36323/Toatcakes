@@ -30,6 +30,6 @@ def get_data(table_name, bucket_name):
         return parquet_data
 
 
-    except Exception as e:
+    except (Exception) as e:
         print(f"An error occured: {e}")
         raise e

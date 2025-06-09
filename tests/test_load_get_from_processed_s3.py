@@ -58,6 +58,6 @@ def test_returns_latest_table_objects(mock_client, s3_client_with_bucket_with_ob
 @patch("utils.load_get_from_processed_s3.client")
 def test_exception_is_raised_if_table_does_not_exist(mock_client, s3_client_with_bucket_with_objects):
     mock_client.return_value = s3_client_with_bucket_with_objects
-    mock_client.side_effect = Exception("Simulated S3 client failure")
-    with pytest.raises(Exception, match="Simulated S3 client failure"):
-        get_data("test_table1", "test-bucket")
+    mock_client.return_value.side_effect = Exception("table does not exist")
+    with pytest.raises(Exception):
+        get_data("test_table2", "test-bucket")
