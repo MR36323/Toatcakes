@@ -47,7 +47,7 @@ def test_that_s3_data_is_immutable(s3_client_with_bucket):
 
 
 # @pytest.mark.skip()
-def test_naming_convention_of_bucket_objects(s3_client_with_bucket):  # =
+def test_naming_convention_of_bucket_objects(s3_client_with_bucket):
     with patch("utils.transform_reformat.datetime") as dt:
         dt.now.return_value = datetime(2025, 5, 30)
         reformat(pd.DataFrame(), "test-bucket", s3_client_with_bucket)

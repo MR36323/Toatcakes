@@ -1,4 +1,4 @@
-from utils.check_data_updates import check_data_updates
+from utils.extract_check_data_updates import check_data_updates
 import pytest
 import os
 from moto import mock_aws

@@ -22,8 +22,6 @@ def make_connection() -> Connection:
 
     secrets_info = get_secret("prod/totesys", "eu-west-2")
 
-    secrets_info = get_secret("prod/totesys", "eu-west-2")
-
     load_dotenv()
     try:
         conn = Connection(
@@ -31,12 +29,7 @@ def make_connection() -> Connection:
             password=secrets_info["password"],
             database=secrets_info["dbname"],
             host=secrets_info["host"],
-            port=secrets_info["port"],
-            user=secrets_info["username"],
-            password=secrets_info["password"],
-            database=secrets_info["dbname"],
-            host=secrets_info["host"],
-            port=secrets_info["port"],
+            port=secrets_info["port"]
         )
         return conn
     except (InterfaceError, Exception) as e:
@@ -62,7 +55,6 @@ def close_connection(conn: Connection):
     try:
         conn.close()
     except (AttributeError, InterfaceError, Exception) as e:
-        print(f"An error occured: {e}")
         print(f"An error occured: {e}")
         raise e
 
@@ -99,11 +91,9 @@ def get_data(conn: Connection, query: str, table_name: str) -> dict:
     try:
         rows = conn.run(query)
         columns = [row["name"] for row in conn.columns]
-        columns = [row["name"] for row in conn.columns]
         data = zip_rows_and_columns(rows, columns)
         return {table_name: data}
     except (DatabaseError, Exception) as e:
-        print(f"An error occured: {e}")
         print(f"An error occured: {e}")
         raise e
 
@@ -125,15 +115,12 @@ def get_secret(secret_name: str, region_name: str) -> dict:
     """
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
-    client = session.client(service_name="secretsmanager", region_name=region_name)
 
     try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as e:
         print(f"ERROR :{e}")
         raise e
 
-    secret = get_secret_value_response["SecretString"]
     secret = get_secret_value_response["SecretString"]
     return json.loads(secret)
