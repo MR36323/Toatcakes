@@ -36,20 +36,6 @@ def lambda_handler(event, context):
         new_data = get_data(conn, f"SELECT * FROM {table}", table)
         if check_data_updates(new_data):
             data_to_bucket(new_data, os.environ.get("BUCKET"), s3_client)
+            data_to_bucket(new_data, os.environ.get("BUCKET"), s3_client)
 
     close_connection(conn)
-
-
-
-
-
-
-
-
-
-
-
-
-  # input_data = {table_name: get_data(conn, f"SELECT * FROM {table_name}", table_name)[table_name] for table_name in tables}
-
-    # data_to_bucket(input_data, "ingestion-zone-bucket-20250530145907229100000002", s3_client)

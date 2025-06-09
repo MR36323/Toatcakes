@@ -65,8 +65,6 @@ def lambda_handler(event,  context):
     except ClientError as exc:
         print(exc)
         raise
+    return responses
 
-
-
-
-    
+# test exceptions and response
