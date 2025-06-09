@@ -154,7 +154,8 @@ data "aws_iam_policy_document""transform_s3_read_access"{
     actions = ["s3:GetObject"]
     resources = [
       "${aws_s3_bucket.lambda_code_bucket.arn}/*",
-      "${aws_s3_bucket.processed_zone_bucket.arn}/*"
+      "${aws_s3_bucket.processed_zone_bucket.arn}/*",
+      "${aws_s3_bucket.ingestion_zone_bucket.arn}/*"
     ]
   }
 }
@@ -170,10 +171,11 @@ data "aws_iam_policy_document""transform_s3_write_access"{
 data "aws_iam_policy_document""transform_s3_list_access"{
     statement {
 
-    actions = ["s3:ListBucket"]
+    actions = ["s3:ListBucket","s3:ListObjectsV2"]
 
     resources = [
       aws_s3_bucket.processed_zone_bucket.arn,
+      aws_s3_bucket.ingestion_zone_bucket.arn
     ]
   }
 }
