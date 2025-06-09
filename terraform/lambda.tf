@@ -19,7 +19,7 @@ resource "aws_lambda_function" "extract_lambda" {
   role = aws_iam_role.extract_lambda_role.arn
   handler = "extract.lambda_handler"
   runtime = "python3.9"
-  layers = [aws_lambda_layer_version.dependencies.arn]
+  layers = [aws_lambda_layer_version.dependencies1.arn]
   timeout = 900
   memory_size = 256
   environment {
@@ -50,7 +50,7 @@ resource "aws_lambda_function" "transform_lambda" {
   role = aws_iam_role.transform_lambda_role.arn
   handler = "transform.lambda_handler"
   runtime = "python3.9"
-  layers = [aws_lambda_layer_version.dependencies.arn]
+  layers = [aws_lambda_layer_version.dependencies1.arn]
   timeout = 900
   memory_size = 256
   environment {

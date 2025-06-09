@@ -195,21 +195,21 @@ data "aws_iam_policy_document" "transform_cw_permissions" {
 
 
 resource "aws_iam_policy" "transform_s3_read_policy" {
-  name = "s3-read-policy"
+  name = "transform-s3-read-policy"
   policy = data.aws_iam_policy_document.transform_s3_read_access.json
 }
 resource "aws_iam_policy""transform_s3_write_policy"{
-    name = "s3-write-policy"
+    name = "transform-s3-write-policy"
     policy = data.aws_iam_policy_document.transform_s3_write_access.json
 }
 
 resource "aws_iam_policy""transform_s3_list_policy"{
-    name = "s3-list-buckets-policy"
+    name = "transform-s3-list-buckets-policy"
     policy = data.aws_iam_policy_document.transform_s3_list_access.json
 }
 
-resource "aws_iam_policy" "transform_cw_log_policy" {
-  name = "cw-log-policy"
+resource "aws_iam_policy""transform_cw_log_policy" {
+  name = "transform-cw-log-policy"
   policy = data.aws_iam_policy_document.transform_cw_permissions.json
 }
 
