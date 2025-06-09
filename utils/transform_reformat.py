@@ -16,7 +16,7 @@ def reformat(table: pd.DataFrame, bucket_name: str, s3_client: client) -> None:
     """
 
     my_datetime = str(datetime.now()).replace(" ", "-")
-    parquet_format = table.to_parquet(engine='fastparquet')
+    parquet_format = table.to_parquet(engine="fastparquet")
 
     return s3_client.put_object(
         Bucket=bucket_name,

@@ -19,6 +19,8 @@ def get_data(table_name: str, bucket_name: str) -> list:
     s3_client = client("s3")
 
     objects_response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=table_name)
+    # if objects_response['Contents'] == []
+    print(objects_response["Contents"])
 
     times_list = [obj["LastModified"] for obj in objects_response["Contents"]]
 
