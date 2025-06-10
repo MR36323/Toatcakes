@@ -1,7 +1,7 @@
 import sys
 from utils.fetch_data import make_connection, close_connection, get_data
 from utils.data_to_bucket import data_to_bucket
-from utils.check_data_updates import check_data_updates
+from utils.extract_check_data_updates import check_data_updates
 import boto3
 import os
 from dotenv import load_dotenv
