@@ -22,7 +22,6 @@ def make_connection() -> Connection:
 
     secrets_info = get_secret("prod/totesys", "eu-west-2")
 
-    load_dotenv()
     try:
         conn = Connection(
             user=secrets_info["username"],

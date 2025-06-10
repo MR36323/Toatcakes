@@ -3,17 +3,32 @@ from pg8000.exceptions import InterfaceError, DatabaseError
 from dotenv import load_dotenv
 from boto3 import client, session
 from botocore.exceptions import ClientError
+import pandas as pd
+from io import BytesIO
 import json
 
 # Note that data types in some columns may have to be changed to conform to the warehouse data model.
 
 def make_connection():
-    # GET SECRET FOR RDS
-    load_dotenv()
-    pass
+    
+    secrets_info = get_secret("prod/warehouse", "eu-west-2")
 
-def close_connection():
-    pass
+    try:
+        conn = Connection(
+            user=secrets_info["username"],
+            password=secrets_info["password"],
+            database=secrets_info["dbname"],
+            host=secrets_info["host"],
+            port=secrets_info["port"]
+        )
+        return conn
+    except (InterfaceError, Exception) as e:
+        print(f"An error occured: {e}")
+        raise e
+    
+
+def close_connection(conn):
+    conn.close()
 
 def get_secret(secret_name: str, region_name: str) -> dict:
     """Retrieves secret from the AWS secrets manager.
@@ -41,7 +56,31 @@ def get_secret(secret_name: str, region_name: str) -> dict:
     secret = get_secret_value_response["SecretString"]
     return json.loads(secret)
 
-def reformat_and_upload(parquet_table: str, rds_endpoint, rds_client: client):
+# def reformat_and_upload(parquet_table: str, rds_endpoint, rds_client: client):
+def reformat_and_upload(conn: object, table_name: str, parquet_table: str):
+    
+    
+    df = pd.read_parquet(BytesIO(parquet_table))
+    query = f"TRUNCATE {table_name};"
+    conn.run(query)
+
+    # INSERT INTO staff ("A", "B") VALUES (1, 1)
+    column_list = tuple(df.columns)
+    for index, row in df.iterrows():
+        values = []
+        for column in column_list:
+            values.append(row[column])
+
+        values = tuple(values)
+        query = f"INSERT INTO {table_name} {column_list} {values}"
+        response = conn.run(query)
+        print(response)
+    query = f"SELECT COUNT(*) FROM {table_name}"
+    response = conn.run(query)
+    print(response)
+    return response
+
+
     # Gets passed in a parquet table format.
     # Change parquet format to dataframe.
     # Uses pd.DataFrame.to_sql() to replace the table in the rds with the updated table.
