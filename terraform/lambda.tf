@@ -20,11 +20,12 @@ resource "aws_lambda_function" "extract_lambda" {
   handler = "extract.lambda_handler"
   runtime = "python3.9"
   layers = [aws_lambda_layer_version.dependencies1.arn]
-  timeout = 900
+  timeout = 816
   memory_size = 256
   environment {
     variables = {
-      BUCKET = aws_s3_bucket.ingestion_zone_bucket.bucket
+      INGESTION_BUCKET = aws_s3_bucket.ingestion_zone_bucket.bucket
+      LAYER_VERSION = aws_lambda_layer_version.dependencies1.version
     }
   }
 }
@@ -42,7 +43,7 @@ data "archive_file" "transform_lambda" {
 }
 
 resource "aws_lambda_function" "transform_lambda" {
-  depends_on = [aws_s3_object.transform_lambda_code] 
+  depends_on = [aws_s3_object.transform_lambda_code, aws_lambda_layer_version.dependencies1] 
   function_name = "transform_lambda"
   source_code_hash = data.archive_file.transform_lambda.output_base64sha256
   s3_bucket = aws_s3_bucket.lambda_code_bucket.bucket
@@ -51,12 +52,13 @@ resource "aws_lambda_function" "transform_lambda" {
   handler = "transform.lambda_handler"
   runtime = "python3.9"
   layers = [aws_lambda_layer_version.dependencies1.arn]
-  timeout = 900
+  timeout = 816
   memory_size = 256
   environment {
     variables = {
       PROCESSED_BUCKET = aws_s3_bucket.processed_zone_bucket.bucket
       INGESTION_BUCKET = aws_s3_bucket.ingestion_zone_bucket.bucket
+      LAYER_VERSION = aws_lambda_layer_version.dependencies1.version
     }
   }
 }

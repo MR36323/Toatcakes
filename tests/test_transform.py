@@ -157,4 +157,5 @@ def test_reformat_takes_correct_args(
     args = mock_reformat.call_args[0]
     assert args[0].equals(pd.DataFrame([{"fact_id": ["val1", "val2"]}]))
     assert args[1] == "test-processed-bucket"
-    assert args[2] == s3_client
+    assert args[2] == "fact_sales"
+    assert args[3] == s3_client

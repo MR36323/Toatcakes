@@ -35,7 +35,7 @@ def lambda_handler(event, context):
     for table in tables:
         new_data = get_data(conn, f"SELECT * FROM {table}", table)
         if check_data_updates(new_data):
-            data_to_bucket(new_data, os.environ.get("BUCKET"), s3_client)
-            data_to_bucket(new_data, os.environ.get("BUCKET"), s3_client)
+            data_to_bucket(new_data, os.environ.get("INGESTION_BUCKET"), s3_client)
+            data_to_bucket(new_data, os.environ.get("INGESTION_BUCKET"), s3_client)
 
     close_connection(conn)

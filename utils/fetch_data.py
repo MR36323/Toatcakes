@@ -6,7 +6,6 @@ from botocore.exceptions import ClientError
 import json
 
 
-
 def make_connection() -> Connection:
     """Connects to the database.
 
@@ -29,12 +28,16 @@ def make_connection() -> Connection:
             database=secrets_info["dbname"],
             host=secrets_info["host"],
             port=secrets_info["port"]
+            user=secrets_info["username"],
+            password=secrets_info["password"],
+            database=secrets_info["dbname"],
+            host=secrets_info["host"],
+            port=secrets_info["port"],
         )
         return conn
     except (InterfaceError, Exception) as e:
         print(f"An error occured: {e}")
         raise e
-
 
 
 def close_connection(conn: Connection):
@@ -58,7 +61,6 @@ def close_connection(conn: Connection):
         raise e
 
 
-
 def zip_rows_and_columns(rows: list, columns: dict) -> list[dict]:
     """Maps the data in rows and column names.
 
@@ -70,7 +72,6 @@ def zip_rows_and_columns(rows: list, columns: dict) -> list[dict]:
       Dictionary with data from rows and columns are mapped.
     """
     return [dict(zip(columns, row)) for row in rows]
-
 
 
 def get_data(conn: Connection, query: str, table_name: str) -> dict:
@@ -95,8 +96,6 @@ def get_data(conn: Connection, query: str, table_name: str) -> dict:
     except (DatabaseError, Exception) as e:
         print(f"An error occured: {e}")
         raise e
-
-
 
 
 def get_secret(secret_name: str, region_name: str) -> dict:

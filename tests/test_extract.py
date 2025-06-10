@@ -5,8 +5,6 @@ import pytest
 
 
 @pytest.fixture(scope="function", autouse=True)
-
-@pytest.fixture(scope="function", autouse=True)
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
     os.environ["BUCKET"] = "test-bucket"
@@ -16,9 +14,6 @@ def aws_credentials():
 @patch("src.extract.check_data_updates")
 @patch("src.extract.close_connection")
 @patch("src.extract.make_connection")
-def test_make_and_close_connection_are_called_once(
-    mock_make_connection, mock_close_connection, mock_check_data_updates
-):
 def test_make_and_close_connection_are_called_once(
     mock_make_connection, mock_close_connection, mock_check_data_updates
 ):
@@ -35,9 +30,6 @@ def test_make_and_close_connection_are_called_once(
 def test_data_gets_called_once_per_table(
     mock_make_connection, mock_get_data, mock_check_data_updates
 ):
-def test_data_gets_called_once_per_table(
-    mock_make_connection, mock_get_data, mock_check_data_updates
-):
     mock_conn = Mock()
     mock_make_connection.return_value = mock_conn
     mock_check_data_updates.return_value = False
@@ -51,13 +43,6 @@ def test_data_gets_called_once_per_table(
 @patch("src.extract.boto3.client")
 @patch("src.extract.get_data")
 @patch("src.extract.make_connection")
-def test_format_of_input_data_is_correct(
-    mock_make_connection,
-    mock_get_data,
-    mock_s3_client,
-    mock_check_data_updates,
-    mock_data_to_bucket,
-):
 def test_format_of_input_data_is_correct(
     mock_make_connection,
     mock_get_data,
@@ -102,13 +87,6 @@ def test_format_of_input_data_is_correct(
 @patch("src.extract.boto3.client")
 @patch("src.extract.get_data")
 @patch("src.extract.make_connection")
-def test_data_to_bucket_is_called_with_correct_arguments(
-    mock_make_connection,
-    mock_get_data,
-    mock_s3_client,
-    mock_check_data_updates,
-    mock_data_to_bucket,
-):
 def test_data_to_bucket_is_called_with_correct_arguments(
     mock_make_connection,
     mock_get_data,

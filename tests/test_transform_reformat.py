@@ -33,15 +33,15 @@ def s3_client_with_bucket(s3_client):
 
 # @pytest.mark.skip()
 def test_function_uploads_object_to_bucket(s3_client_with_bucket):
-    reformat(pd.DataFrame(), "test-bucket", s3_client_with_bucket)
+    reformat(pd.DataFrame(), "test-bucket", 'test_table', s3_client_with_bucket)
     response = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")
     assert "data" in response["Contents"][0]["Key"]
     assert int(response["KeyCount"]) >= 1
 
 
 def test_that_s3_data_is_immutable(s3_client_with_bucket):
-    reformat(pd.DataFrame({"A": [1]}), "test-bucket", s3_client_with_bucket)
-    reformat(pd.DataFrame({"B": [2]}), "test-bucket", s3_client_with_bucket)
+    reformat(pd.DataFrame({"A": [1]}), "test-bucket", 'test_table', s3_client_with_bucket)
+    reformat(pd.DataFrame({"B": [2]}), "test-bucket", 'test_table', s3_client_with_bucket)
     response = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")
     assert int(response["KeyCount"]) >= 2
 
@@ -50,18 +50,18 @@ def test_that_s3_data_is_immutable(s3_client_with_bucket):
 def test_naming_convention_of_bucket_objects(s3_client_with_bucket):
     with patch("utils.transform_reformat.datetime") as dt:
         dt.now.return_value = datetime(2025, 5, 30)
-        reformat(pd.DataFrame(), "test-bucket", s3_client_with_bucket)
+        reformat(pd.DataFrame(), "test-bucket", 'test_table', s3_client_with_bucket)
     key = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")["Contents"][0][
         "Key"
     ]
-    assert key == "data-2025-05-30-00:00:00.snappy.parquet"
+    assert key == "test_table/data-2025-05-30-00:00:00.snappy.parquet"
 
 
 def test_table_is_in_parquet_format(s3_client_with_bucket):
     test_dataframe = pd.DataFrame({"A": [1, 2, 3], "B": [1, 2, 3]})
     with patch("utils.transform_reformat.datetime") as dt:
         dt.now.return_value = datetime(2025, 5, 30)
-        reformat(test_dataframe, "test-bucket", s3_client_with_bucket)
+        reformat(test_dataframe, "test-bucket", 'test_table', s3_client_with_bucket)
 
     key = s3_client_with_bucket.list_objects_v2(Bucket="test-bucket")["Contents"][0][
         "Key"

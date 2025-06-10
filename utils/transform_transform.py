@@ -66,7 +66,6 @@ def create_dim_staff(staff: list, department: list) -> pd.DataFrame:
     return dim_staff_df
 
 
-
 def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     """Create and populate new dimension counterparty table.
 
@@ -140,7 +139,6 @@ def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     return dim_counterparty_df
 
 
-
 def create_dim_currency(currency: list) -> pd.DataFrame:
     """Create and populate new dimension currency table.
 
@@ -161,16 +159,11 @@ def create_dim_currency(currency: list) -> pd.DataFrame:
 
     dim_currency_df = pd.DataFrame(currency)
     dim_currency_df = dim_currency_df.drop(["created_at", "last_updated"], axis=1)
-    dim_currency_df = dim_currency_df.drop(["created_at", "last_updated"], axis=1)
 
-    dim_currency_df["currency_name"] = dim_currency_df["currency_code"].map(
-        currency_name
-    )
     dim_currency_df["currency_name"] = dim_currency_df["currency_code"].map(
         currency_name
     )
     dim_currency_df = dim_currency_df.fillna("Unknown")
-
 
     return dim_currency_df
 
@@ -186,9 +179,7 @@ def create_dim_design(design: list) -> pd.DataFrame:
     """
     design_df = pd.DataFrame(design)
     dim_design_df = design_df.drop(["created_at", "last_updated"], axis=1)
-    dim_design_df = design_df.drop(["created_at", "last_updated"], axis=1)
     return dim_design_df
-
 
 
 def create_dim_location(address: list) -> pd.DataFrame:
@@ -203,10 +194,7 @@ def create_dim_location(address: list) -> pd.DataFrame:
     address_df = pd.DataFrame(address)
     dim_location_df = address_df.drop(["created_at", "last_updated"], axis=1)
     dim_location_df.rename(columns={"address_id": "location_id"}, inplace=True)
-    dim_location_df = address_df.drop(["created_at", "last_updated"], axis=1)
-    dim_location_df.rename(columns={"address_id": "location_id"}, inplace=True)
     return dim_location_df
-
 
 
 def create_dim_date(sales_orders: list) -> pd.DataFrame:
@@ -230,7 +218,6 @@ def create_dim_date(sales_orders: list) -> pd.DataFrame:
             if date not in dates:
                 dates.append(date)
 
-
     date_ids, years, months, days, days_of_week = [], [], [], [], []
     day_names, month_names, quarters = [], [], []
 
@@ -252,7 +239,6 @@ def create_dim_date(sales_orders: list) -> pd.DataFrame:
     )
     for date in dates:
         date = date.split()[0]
-        split_date = date.split("-")
         split_date = date.split("-")
 
         year = int(split_date[0])
@@ -289,18 +275,8 @@ def create_dim_date(sales_orders: list) -> pd.DataFrame:
         "month_name": month_names,
         "quarter": quarters,
     }
-        "date_id": date_ids,
-        "year": years,
-        "month": months,
-        "day": days,
-        "day_of_week": days_of_week,
-        "day_name": day_names,
-        "month_name": month_names,
-        "quarter": quarters,
-    }
     dim_date_df = pd.DataFrame(date_columns)
     return dim_date_df
-
 
 
 def create_fact_sales_order(
@@ -370,7 +346,6 @@ def get_latest_sales_record_id() -> int:
     """
 
 
-
 def update_latest_sales_record_id(sales_record_id: int):
     """Put the latest sales record id into processed zone bucket.
 
@@ -394,7 +369,7 @@ def get_latest_transformed_object_from_S3():
     s3_client = client("s3")
 
     objects_response = s3_client.list_objects_v2(
-        Bucket=os.environ.get("BUCKET"), Prefix="fact_sales_order"
+        Bucket=os.environ.get("PROCESSED_BUCKET"), Prefix="fact_sales_order"
     )
 
     if objects_response["KeyCount"] == 0:
@@ -410,6 +385,6 @@ def get_latest_transformed_object_from_S3():
     ][0]
 
     current_data = s3_client.get_object(
-        Bucket=os.environ.get("BUCKET"), Key=most_recent_key
+        Bucket=os.environ.get("PROCESSED_BUCKET"), Key=most_recent_key
     )["Body"].read()
     return pd.read_parquet(BytesIO(current_data))
