@@ -8,3 +8,4 @@ venv
 **/packages/*
 notebook.ipynb
 .coverage
+dependencies1
