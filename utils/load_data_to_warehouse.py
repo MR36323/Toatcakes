@@ -12,7 +12,6 @@ import json
 def make_connection():
     
     secrets_info = get_secret("prod/warehouse", "eu-west-2")
-    print(secrets_info)
     try:
         conn = Connection(
             user=secrets_info["username"],
@@ -66,19 +65,21 @@ def reformat_and_upload(conn: object, table_name: str, parquet_table: str):
 
     # INSERT INTO staff ("A", "B") VALUES (1, 1)
     column_list = tuple(df.columns)
+    column_list_items = '('
+    for col in column_list:
+        column_list_items += f'{str(col)}, '
+    final_str = column_list_items.rstrip(', ') + ')'
     for index, row in df.iterrows():
         values = []
         for column in column_list:
-            values.append(row[column])
-
+            values.append(int(row[column]))
+        
         values = tuple(values)
-        query = f"INSERT INTO {table_name} {column_list} {values}"
+        query = f"INSERT INTO {table_name} {final_str} VALUES {values}"
         response = conn.run(query)
-        print(response)
     query = f"SELECT COUNT(*) FROM {table_name}"
     response = conn.run(query)
-    print(response)
-    return response
+    return response[0][0]
 
 
     # Gets passed in a parquet table format.
