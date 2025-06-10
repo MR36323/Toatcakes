@@ -730,24 +730,6 @@ class TestCreateFactSalesOrder:
             np.int64(19),
         ]
 
-    # class TestLatestGetSalesRecordId:
-
-    def test_gets_latest_record_id_if_already_present(self): ...
-    def test_gets_latest_record_id_if_already_present(self): ...
-
-    def test_raises_exception_if_record_id_not_already_present(self): ...
-    def test_raises_exception_if_record_id_not_already_present(self): ...
-
-
-class TestUpdateLatestSalesRecordId:
-
-    def test_update_latest_record_id_if_already_present(self): ...
-
-
-#     def test_update_latest_record_id_if_not_already_present(self):
-#         ...
-
-
 class TestGetLatestTransformedObject:
     @pytest.fixture
     def test_data1(self):
@@ -765,7 +747,7 @@ class TestGetLatestTransformedObject:
         os.environ["AWS_SECURITY_TOKEN"] = "testing"
         os.environ["AWS_SESSION_TOKEN"] = "testing"
         os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
-        os.environ["BUCKET"] = "test-bucket"
+        os.environ["PROCESSED_BUCKET"] = "test-bucket"
 
     @pytest.fixture(scope="function")
     def s3_client(self, aws_credentials):

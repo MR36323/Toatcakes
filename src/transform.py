@@ -47,24 +47,22 @@ def lambda_handler(event,  context):
     previous_fact_df = get_latest_transformed_object_from_S3()
     fact_sales_df = create_fact_sales_order(input_data["sales_order"],
                                             previous_fact_df)
-    dataframes = [
-        dim_staff_df,
-        dim_counterparty_df,
-        dim_currency_df,
-        dim_design_df,
-        dim_location_df,
-        dim_date_df,
-        fact_sales_df,
-    ]
+    dataframes = {
+        'dim_staff': dim_staff_df,
+        'dim_counterparty': dim_counterparty_df,
+        'dim_currency': dim_currency_df,
+        'dim_design': dim_design_df,
+        'dim_location': dim_location_df,
+        'dim_date': dim_date_df,
+        'fact_sales': fact_sales_df,
+    }
     s3_client = client("s3")
     try:
         responses = [
-            reformat(df, os.environ.get("PROCESSED_BUCKET"), s3_client)
-            for df in dataframes
+            reformat(dataframes[key], os.environ.get("PROCESSED_BUCKET"), key, s3_client)
+            for key in list(dataframes.keys())
         ]
     except ClientError as exc:
         print(exc)
         raise
     return responses
-
-# test exceptions and response

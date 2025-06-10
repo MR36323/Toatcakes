@@ -26,7 +26,7 @@ def check_data_updates(new_data):
     table_name = list(new_data.keys())[0]
 
     objects_response = s3_client.list_objects_v2(
-        Bucket=os.environ.get("BUCKET"), Prefix=table_name
+        Bucket=os.environ.get("INGESTION_BUCKET"), Prefix=table_name
     )
     if objects_response["KeyCount"] == 0:
         return True
@@ -41,7 +41,7 @@ def check_data_updates(new_data):
     ][0]
 
     current_data = (
-        s3_client.get_object(Bucket=os.environ.get("BUCKET"), Key=most_recent_key)[
+        s3_client.get_object(Bucket=os.environ.get("INGESTION_BUCKET"), Key=most_recent_key)[
             "Body"
         ]
         .read()
