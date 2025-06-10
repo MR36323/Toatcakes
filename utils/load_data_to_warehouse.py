@@ -7,7 +7,8 @@ import pandas as pd
 from io import BytesIO
 import json
 
-# Note that data types in some columns may have to be changed to conform to the warehouse data model.
+# Note that data types in some columns may have to be
+# changed to conform to the warehouse data model.
 
 def make_connection():
     
@@ -57,9 +58,9 @@ def get_secret(secret_name: str, region_name: str) -> dict:
 
 # def reformat_and_upload(parquet_table: str, rds_endpoint, rds_client: client):
 def reformat_and_upload(conn: object, table_name: str, parquet_table: str):
-    
-    
-    df = pd.read_parquet(BytesIO(parquet_table))
+
+    # df = pd.read_parquet(BytesIO(parquet_table))
+    df = parquet_table
     query = f"TRUNCATE {table_name};"
     conn.run(query)
 
@@ -89,5 +90,4 @@ def reformat_and_upload(conn: object, table_name: str, parquet_table: str):
     # conn.run("CREATE TABLE IF NOT EXISTS test (id INT, name TEXT);")
     # conn.run("INSERT INTO test (id, name) VALUES (%s, %s);", (1, 'Alice'))
     # conn.commit() ?
-    pass
 

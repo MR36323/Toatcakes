@@ -226,12 +226,6 @@ def create_dim_date(sales_orders: list) -> pd.DataFrame:
             "agreed_delivery_date",
             "agreed_payment_date",
         ):
-        for date_key in (
-            "created_at",
-            "last_updated",
-            "agreed_delivery_date",
-            "agreed_payment_date",
-        ):
             date = sales_order[date_key]
             if date not in dates:
                 dates.append(date)
