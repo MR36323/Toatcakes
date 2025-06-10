@@ -12,7 +12,7 @@ import json
 def make_connection():
     
     secrets_info = get_secret("prod/warehouse", "eu-west-2")
-
+    print(secrets_info)
     try:
         conn = Connection(
             user=secrets_info["username"],
