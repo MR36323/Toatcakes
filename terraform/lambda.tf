@@ -60,3 +60,35 @@ resource "aws_lambda_function" "transform_lambda" {
     }
   }
 }
+
+##########################################
+#            LOAD LAMBDA                 #
+##########################################
+
+data "archive_file" "load_lambda" {
+  type        = "zip"
+  output_path = "${path.module}/../packages/load/function.zip"
+  source_content = file("${path.module}/../src/load.py")
+  source_content_filename = "load.py"
+  output_file_mode = "0666"
+}
+
+resource "aws_lambda_function" "load_lambda" {
+  depends_on = [aws_s3_object.load_lambda_code] 
+  function_name = "load"
+  source_code_hash = data.archive_file.load_lambda.output_base64sha256
+  s3_bucket = aws_s3_bucket.lambda_code_bucket.bucket
+  s3_key = aws_s3_object.load_lambda_code.key
+  role = aws_iam_role.load_lambda_role.arn
+  handler = "load.lambda_handler"
+  runtime = "python3.9"
+  layers = [aws_lambda_layer_version.dependencies1.arn]
+  timeout = 900
+  memory_size = 256
+  environment {
+    variables = {
+      PROCESSED_BUCKET = aws_s3_bucket.processed_zone_bucket.bucket
+      INGESTION_BUCKET = aws_s3_bucket.ingestion_zone_bucket.bucket
+    }
+  }
+}
