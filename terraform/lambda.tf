@@ -20,11 +20,11 @@ resource "aws_lambda_function" "extract_lambda" {
   handler = "extract.lambda_handler"
   runtime = "python3.9"
   layers = [aws_lambda_layer_version.dependencies1.arn]
-  timeout = 900
+  timeout = 816
   memory_size = 256
   environment {
     variables = {
-      BUCKET = aws_s3_bucket.ingestion_zone_bucket.bucket
+      INGESTION_BUCKET = aws_s3_bucket.ingestion_zone_bucket.bucket
       LAYER_VERSION = aws_lambda_layer_version.dependencies1.version
     }
   }
@@ -52,7 +52,7 @@ resource "aws_lambda_function" "transform_lambda" {
   handler = "transform.lambda_handler"
   runtime = "python3.9"
   layers = [aws_lambda_layer_version.dependencies1.arn]
-  timeout = 900
+  timeout = 816
   memory_size = 256
   environment {
     variables = {
