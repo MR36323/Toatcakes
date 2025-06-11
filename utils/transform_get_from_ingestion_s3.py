@@ -1,8 +1,5 @@
-from botocore.exceptions import ClientError
 from boto3 import client
 import json
-import os
-from dotenv import load_dotenv
 
 
 def get_data(table_name: str, bucket_name: str) -> list:
@@ -20,7 +17,9 @@ def get_data(table_name: str, bucket_name: str) -> list:
     """
     s3_client = client("s3")
 
-    objects_response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=table_name)
+    objects_response = s3_client.list_objects_v2(
+        Bucket=bucket_name, Prefix=table_name
+    )
 
     times_list = [obj["LastModified"] for obj in objects_response["Contents"]]
 
@@ -43,13 +42,7 @@ def get_data(table_name: str, bucket_name: str) -> list:
         for key in list(data_point.keys()):
             try:
                 data_point[key] = data_point[key].replace("'", "''")
-                # data_point[key] = f"'{data_point[key]}'"
             except AttributeError:
                 pass
 
     return json_current[table_name]
-
-
-if __name__ == "__main__":
-    load_dotenv()
-    get_data("address", os.environ.get("INGESTION_BUCKET"))

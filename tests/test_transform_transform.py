@@ -18,7 +18,6 @@ import time
 import os
 import datetime
 from unittest.mock import patch
-import fastparquet
 
 
 class TestCreateDimStaff:
@@ -67,7 +66,7 @@ class TestCreateDimStaff:
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_staff(test_data[0], test_data[1])
-        assert type(result_df) == pandas.core.frame.DataFrame
+        assert type(result_df) is pandas.core.frame.DataFrame
 
     def test_correct_clmn_names(self, test_data):
         result_df = create_dim_staff(test_data[0], test_data[1])
@@ -82,32 +81,12 @@ class TestCreateDimStaff:
 
     def test_correct_clmn_data_types(self, test_data):
         result_df = create_dim_staff(test_data[0], test_data[1])
-        assert type(result_df.loc[0]["staff_id"]) == np.int64
-        assert type(result_df.loc[0]["first_name"]) == str
-        assert type(result_df.loc[0]["last_name"]) == str
-        assert type(result_df.loc[0]["department_name"]) == str
-        assert type(result_df.loc[0]["location"]) == str
-        assert type(result_df.loc[0]["email_address"]) == str
-
-    def test_correct_clmn_names(self, test_data):
-        result_df = create_dim_staff(test_data[0], test_data[1])
-        assert set(result_df.columns.values) == {
-            "staff_id",
-            "first_name",
-            "last_name",
-            "department_name",
-            "location",
-            "email_address",
-        }
-
-    def test_correct_clmn_data_types(self, test_data):
-        result_df = create_dim_staff(test_data[0], test_data[1])
-        assert type(result_df.loc[0]["staff_id"]) == np.int64
-        assert type(result_df.loc[0]["first_name"]) == str
-        assert type(result_df.loc[0]["last_name"]) == str
-        assert type(result_df.loc[0]["department_name"]) == str
-        assert type(result_df.loc[0]["location"]) == str
-        assert type(result_df.loc[0]["email_address"]) == str
+        assert type(result_df.loc[0]["staff_id"]) is np.int64
+        assert type(result_df.loc[0]["first_name"]) is str
+        assert type(result_df.loc[0]["last_name"]) is str
+        assert type(result_df.loc[0]["department_name"]) is str
+        assert type(result_df.loc[0]["location"]) is str
+        assert type(result_df.loc[0]["email_address"]) is str
 
     def test_correct_data_values(self, test_data):
         result_df = create_dim_staff(test_data[0], test_data[1])
@@ -182,10 +161,7 @@ class TestCreateDimCounterparty:
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_counterparty(test_data[0], test_data[1])
-
-    def test_output_is_of_type_dataframe(self, test_data):
-        result_df = create_dim_counterparty(test_data[0], test_data[1])
-        assert type(result_df) == pandas.core.frame.DataFrame
+        assert type(result_df) is pandas.core.frame.DataFrame
 
     def test_correct_clmn_names(self, test_data):
         result_df = create_dim_counterparty(test_data[0], test_data[1])
@@ -203,25 +179,33 @@ class TestCreateDimCounterparty:
 
     def test_correct_clmn_data_types(self, test_data):
         result_df = create_dim_counterparty(test_data[0], test_data[1])
-        assert type(result_df.loc[0]["counterparty_id"]) == np.int64
-        assert type(result_df.loc[0]["counterparty_legal_name"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_address_line_1"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_address_line_2"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_district"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_city"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_postal_code"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_country"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_phone_number"]) == str
+        assert type(result_df.loc[0]["counterparty_id"]) is np.int64
+        assert type(result_df.loc[0]["counterparty_legal_name"]) is str
+        assert (
+            type(result_df.loc[0]["counterparty_legal_address_line_1"]) is str
+        )
+        assert (
+            type(result_df.loc[0]["counterparty_legal_address_line_2"]) is str
+        )
+        assert type(result_df.loc[0]["counterparty_legal_district"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_city"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_postal_code"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_country"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_phone_number"]) is str
         result_df = create_dim_counterparty(test_data[0], test_data[1])
-        assert type(result_df.loc[0]["counterparty_id"]) == np.int64
-        assert type(result_df.loc[0]["counterparty_legal_name"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_address_line_1"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_address_line_2"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_district"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_city"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_postal_code"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_country"]) == str
-        assert type(result_df.loc[0]["counterparty_legal_phone_number"]) == str
+        assert type(result_df.loc[0]["counterparty_id"]) is np.int64
+        assert type(result_df.loc[0]["counterparty_legal_name"]) is str
+        assert (
+            type(result_df.loc[0]["counterparty_legal_address_line_1"]) is str
+        )
+        assert (
+            type(result_df.loc[0]["counterparty_legal_address_line_2"]) is str
+        )
+        assert type(result_df.loc[0]["counterparty_legal_district"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_city"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_postal_code"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_country"]) is str
+        assert type(result_df.loc[0]["counterparty_legal_phone_number"]) is str
 
     def test_correct_data_values(self, test_data):
         result_df = create_dim_counterparty(test_data[0], test_data[1])
@@ -250,7 +234,6 @@ class TestCreateDimCounterparty:
         ]
 
 
-# @pytest.mark.skip
 class TestCreateDimCurrency:
 
     def test_output_is_of_type_dataframe(self):
@@ -355,7 +338,7 @@ class TestCreateDimDesign:
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_design(test_data)
-        assert type(result_df) == pandas.core.frame.DataFrame
+        assert type(result_df) is pandas.core.frame.DataFrame
 
     def test_correct_clmn_names(self, test_data):
         result_df = create_dim_design(test_data)
@@ -368,17 +351,22 @@ class TestCreateDimDesign:
 
     def test_correct_clmn_data_types(self, test_data):
         result_df = create_dim_design(test_data)
-        assert type(result_df.loc[0]["design_id"]) == np.int64
-        assert type(result_df.loc[0]["design_name"]) == str
-        assert type(result_df.loc[0]["file_location"]) == str
-        assert type(result_df.loc[0]["file_name"]) == str
+        assert type(result_df.loc[0]["design_id"]) is np.int64
+        assert type(result_df.loc[0]["design_name"]) is str
+        assert type(result_df.loc[0]["file_location"]) is str
+        assert type(result_df.loc[0]["file_name"]) is str
 
     def test_correct_data_values(self, test_data):
         result_df = create_dim_design(test_data)
         row_list_0 = result_df.loc[0, :].values.tolist()
         row_list_1 = result_df.loc[1, :].values.tolist()
         assert row_list_0 == [8, "Wooden", "/usr", "wooden-20220717-npgz.json"]
-        assert row_list_1 == [51, "Bronze", "/private", "bronze-20221024-4dds.json"]
+        assert row_list_1 == [
+            51,
+            "Bronze",
+            "/private",
+            "bronze-20221024-4dds.json",
+        ]
 
 
 class TestCreateDimLocation:
@@ -401,7 +389,7 @@ class TestCreateDimLocation:
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_location(test_data)
-        assert type(result_df) == pandas.core.frame.DataFrame
+        assert type(result_df) is pandas.core.frame.DataFrame
 
     def test_correct_clmn_names(self, test_data):
         result_df = create_dim_location(test_data)
@@ -418,14 +406,14 @@ class TestCreateDimLocation:
 
     def test_correct_clmn_data_types(self, test_data):
         result_df = create_dim_location(test_data)
-        assert type(result_df.loc[0]["location_id"]) == np.int64
-        assert type(result_df.loc[0]["address_line_1"]) == str
-        assert type(result_df.loc[0]["address_line_2"]) == str
-        assert type(result_df.loc[0]["district"]) == str
-        assert type(result_df.loc[0]["city"]) == str
-        assert type(result_df.loc[0]["postal_code"]) == str
-        assert type(result_df.loc[0]["country"]) == str
-        assert type(result_df.loc[0]["phone"]) == str
+        assert type(result_df.loc[0]["location_id"]) is np.int64
+        assert type(result_df.loc[0]["address_line_1"]) is str
+        assert type(result_df.loc[0]["address_line_2"]) is str
+        assert type(result_df.loc[0]["district"]) is str
+        assert type(result_df.loc[0]["city"]) is str
+        assert type(result_df.loc[0]["postal_code"]) is str
+        assert type(result_df.loc[0]["country"]) is str
+        assert type(result_df.loc[0]["phone"]) is str
 
     def test_correct_data_values(self, test_data):
         result_df = create_dim_location(test_data)
@@ -619,12 +607,16 @@ class TestCreateFactSalesOrder:
 
     def test_output_is_of_type_dataframe(self, test_data):
         test_previous_data = []
-        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
-        assert type(result_df) == pandas.core.frame.DataFrame
+        result_df = create_fact_sales_order(
+            test_data, pd.DataFrame(test_previous_data)
+        )
+        assert type(result_df) is pandas.core.frame.DataFrame
 
     def test_correct_clmn_names(self, test_data):
         test_previous_data = []
-        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
+        result_df = create_fact_sales_order(
+            test_data, pd.DataFrame(test_previous_data)
+        )
         assert list(result_df.columns.values) == [
             "sales_record_id",
             "sales_order_id",
@@ -645,28 +637,32 @@ class TestCreateFactSalesOrder:
 
     def test_correct_clmn_data_types(self, test_data):
         test_previous_data = []
-        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
-        assert type(result_df.loc[0]["sales_record_id"]) == np.int64
-        assert type(result_df.loc[0]["sales_order_id"]) == np.int64
-        assert type(result_df.loc[0]["created_date"]) == str
-        assert type(result_df.loc[0]["created_time"]) == str
-        assert type(result_df.loc[0]["last_updated_date"]) == str
-        assert type(result_df.loc[0]["last_updated_time"]) == str
-        assert type(result_df.loc[0]["sales_staff_id"]) == np.int64
-        assert type(result_df.loc[0]["counterparty_id"]) == np.int64
-        assert type(result_df.loc[0]["units_sold"]) == np.int64
-        assert type(result_df.loc[0]["unit_price"]) == str
-        assert type(result_df.loc[0]["currency_id"]) == np.int64
-        assert type(result_df.loc[0]["design_id"]) == np.int64
-        assert type(result_df.loc[0]["agreed_payment_date"]) == str
-        assert type(result_df.loc[0]["agreed_delivery_location_id"]) == np.int64
-
-    # refactor to loop through columns and rows
+        result_df = create_fact_sales_order(
+            test_data, pd.DataFrame(test_previous_data)
+        )
+        assert type(result_df.loc[0]["sales_record_id"]) is np.int64
+        assert type(result_df.loc[0]["sales_order_id"]) is np.int64
+        assert type(result_df.loc[0]["created_date"]) is str
+        assert type(result_df.loc[0]["created_time"]) is str
+        assert type(result_df.loc[0]["last_updated_date"]) is str
+        assert type(result_df.loc[0]["last_updated_time"]) is str
+        assert type(result_df.loc[0]["sales_staff_id"]) is np.int64
+        assert type(result_df.loc[0]["counterparty_id"]) is np.int64
+        assert type(result_df.loc[0]["units_sold"]) is np.int64
+        assert type(result_df.loc[0]["unit_price"]) is str
+        assert type(result_df.loc[0]["currency_id"]) is np.int64
+        assert type(result_df.loc[0]["design_id"]) is np.int64
+        assert type(result_df.loc[0]["agreed_payment_date"]) is str
+        assert (
+            type(result_df.loc[0]["agreed_delivery_location_id"]) is np.int64
+        )
 
     def test_correct_data_values_for_new_and_updates_records(
         self, test_data, test_previous_data
     ):
-        result_df = create_fact_sales_order(test_data, pd.DataFrame(test_previous_data))
+        result_df = create_fact_sales_order(
+            test_data, pd.DataFrame(test_previous_data)
+        )
         row_list = []
 
         for i in range(len(result_df)):
@@ -774,10 +770,12 @@ class TestGetLatestTransformedObject:
         yield s3_client_with_bucket
 
     @patch("utils.transform_transform.client")
-    def test_returns_a_dataframe(self, mock_client, s3_client_with_bucket_with_objects):
+    def test_returns_a_dataframe(
+        self, mock_client, s3_client_with_bucket_with_objects
+    ):
         mock_client.return_value = s3_client_with_bucket_with_objects
         result = get_latest_transformed_object_from_S3()
-        assert type(result) == pandas.core.frame.DataFrame
+        assert type(result) is pandas.core.frame.DataFrame
 
     @patch("utils.transform_transform.client")
     def test_returns_the_recently_added_dataframe(

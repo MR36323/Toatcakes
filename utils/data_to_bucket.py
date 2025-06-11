@@ -32,7 +32,7 @@ def data_to_bucket(
         DataIsNoneError: No data provided.
         InvalidBucketError: No bucket of that name exists.
     """
-    if data == None:
+    if data is None:
         raise DataIsNoneError("Data must not be None")
 
     table_name = list(data.keys())[0]

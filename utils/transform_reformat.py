@@ -5,7 +5,7 @@ from datetime import datetime
 
 def reformat(
     table: pd.DataFrame, bucket_name: str, table_name: str, s3_client: client
-) -> None:
+) -> dict:
     """Places transformed data into proccess zone bucket.
 
     Args:
@@ -15,7 +15,7 @@ def reformat(
         s3_client: A boto3 s3 client.
 
     Returns:
-        None.
+        Dictionary containing return info from boto3client put_object.
     """
 
     my_datetime = str(datetime.now()).replace(" ", "-")

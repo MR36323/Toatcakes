@@ -48,14 +48,14 @@ def s3_client_with_bucket_with_objects(s3_client_with_bucket):
     yield s3_client_with_bucket
 
 
-@patch("utils.check_data_updates.client")
+@patch("utils.extract_check_data_updates.client")
 def test_returns_boolean(mock_client, s3_client_with_bucket_with_objects):
     mock_client.return_value = s3_client_with_bucket_with_objects
     test_data = {"test_table1": [{"test_column1": "test_value1"}]}
     assert isinstance(check_data_updates(test_data), bool)
 
 
-@patch("utils.check_data_updates.client")
+@patch("utils.extract_check_data_updates.client")
 def test_returns_true_if_data_is_changed(
     mock_client, s3_client_with_bucket_with_objects
 ):
@@ -64,20 +64,17 @@ def test_returns_true_if_data_is_changed(
     assert check_data_updates(test_data)
 
 
-@patch("utils.check_data_updates.client")
+@patch("utils.extract_check_data_updates.client")
 def test_returns_false_if_data_is_unchanged(
     mock_client, s3_client_with_bucket_with_objects
 ):
     mock_client.return_value = s3_client_with_bucket_with_objects
     test_data = {"test_table1": [{"test_column2": "test_value2"}]}
-    assert check_data_updates(test_data) == False
+    assert not check_data_updates(test_data)
 
 
-@patch("utils.check_data_updates.client")
+@patch("utils.extract_check_data_updates.client")
 def test_returns_true_if_no_objects(mock_client, s3_client_with_bucket):
     mock_client.return_value = s3_client_with_bucket
     test_data = {"test_table1": [{"test_column2": "test_value2"}]}
     assert check_data_updates(test_data)
-
-
-#  check if prefix is working by adding more test tables

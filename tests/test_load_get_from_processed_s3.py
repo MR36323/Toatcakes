@@ -3,8 +3,7 @@ import pytest
 import os
 import boto3
 from moto import mock_aws
-from unittest.mock import Mock, patch
-from botocore.exceptions import ClientError
+from unittest.mock import patch
 from datetime import datetime
 import pandas as pd
 import time
@@ -53,7 +52,9 @@ def s3_client_with_bucket_with_objects(s3_client_with_bucket):
 
 
 @patch("utils.load_get_from_processed_s3.client")
-def test_returns_latest_table_objects(mock_client, s3_client_with_bucket_with_objects):
+def test_returns_latest_table_objects(
+    mock_client, s3_client_with_bucket_with_objects
+):
     mock_client.return_value = s3_client_with_bucket_with_objects
     result = get_data("test_table1", "test-bucket")
 

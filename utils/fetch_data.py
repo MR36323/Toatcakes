@@ -1,6 +1,5 @@
 from pg8000.native import Connection
 from pg8000.exceptions import InterfaceError, DatabaseError
-from dotenv import load_dotenv
 import boto3
 from botocore.exceptions import ClientError
 import json
@@ -107,10 +106,14 @@ def get_secret(secret_name: str, region_name: str) -> dict:
       ClientError: If anything goes wrong.
     """
     session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
+    client = session.client(
+        service_name="secretsmanager", region_name=region_name
+    )
 
     try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
     except ClientError as e:
         print(f"ERROR :{e}")
         raise e

@@ -1,13 +1,10 @@
 from src.transform import lambda_handler
 from moto import mock_aws
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 import os
 import pytest
-import time
 import pandas as pd
 import boto3
-import datetime
-import botocore.client
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -146,16 +143,20 @@ def test_reformat_takes_correct_args(
     s3_client,
 ):
     mock_staff.return_value = pd.DataFrame([{"staff_id": ["val1", "val2"]}])
-    mock_counterparty.return_value = pd.DataFrame([{"cp_id": ["val1", "val2"]}])
+    mock_counterparty.return_value = pd.DataFrame(
+        [{"cp_id": ["val1", "val2"]}]
+    )
     mock_currency.return_value = pd.DataFrame([{"curr_id": ["val1", "val2"]}])
     mock_design.return_value = pd.DataFrame([{"des_id": ["val1", "val2"]}])
     mock_loc.return_value = pd.DataFrame([{"loc_id": ["val1", "val2"]}])
     mock_date.return_value = pd.DataFrame([{"date_id": ["val1", "val2"]}])
-    mock_fact_sales.return_value = pd.DataFrame([{"fact_id": ["val1", "val2"]}])
+    mock_fact_sales.return_value = pd.DataFrame(
+        [{"fact_id": ["val1", "val2"]}]
+    )
     mock_client.return_value = s3_client
     lambda_handler({}, {})
     args = mock_reformat.call_args[0]
     assert args[0].equals(pd.DataFrame([{"fact_id": ["val1", "val2"]}]))
     assert args[1] == "test-processed-bucket"
-    assert args[2] == "fact_sales"
+    assert args[2] == "fact_sales_order"
     assert args[3] == s3_client

@@ -1,17 +1,22 @@
 from pg8000.native import Connection
-from pg8000.exceptions import InterfaceError, DatabaseError
-from dotenv import load_dotenv
+from pg8000.exceptions import InterfaceError
 import boto3
 from botocore.exceptions import ClientError
-import pandas as pd
-from io import BytesIO
 import json
-
-# Note that data types in some columns may have to be
-# changed to conform to the warehouse data model.
 
 
 def make_connection():
+    """Connects to the database.
+
+    Args:
+      None.
+
+    Returns:
+      Pg8000 connection object.
+
+    Raises:
+      InterfaceError: If credentials are incorrect.
+    """
 
     secrets_info = get_secret("prod/warehouse", "eu-west-2")
     try:
@@ -29,7 +34,15 @@ def make_connection():
 
 
 def close_connection(conn):
+    """Closes connection to database.
+
+    Args:
+      conn: Pg8000 connection object.
+
+    Returns:
+      None.
     conn.close()
+    """
 
 
 def get_secret(secret_name: str, region_name: str) -> dict:
@@ -47,10 +60,14 @@ def get_secret(secret_name: str, region_name: str) -> dict:
     """
 
     session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
+    client = session.client(
+        service_name="secretsmanager", region_name=region_name
+    )
 
     try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
     except ClientError as e:
         print(f"ERROR :{e}")
         raise e
@@ -59,15 +76,21 @@ def get_secret(secret_name: str, region_name: str) -> dict:
     return json.loads(secret)
 
 
-# def reformat_and_upload(parquet_table: str, rds_endpoint, rds_client: client):
-def reformat_and_upload(conn: object, table_name: str, parquet_table: str):
+def reformat_and_upload(
+    conn: object, table_name: str, parquet_table: str
+) -> int:
+    """Adds data in parquet file to a psql table.
 
-    # df = pd.read_parquet(BytesIO(parquet_table))
+    Args:
+      conn: pg8000 connection object.
+      table_name: Name of table in psql database table.
+      parquet_table: Data from a parquet file, corresponding to database table
+
+    Returns:
+      Number of rows in psql table.
+    """
+
     df = parquet_table
-    # query = f"DELETE FROM {table_name};"
-    # conn.run(query)
-
-    # INSERT INTO staff ("A", "B") VALUES (1, 1)
     column_list = tuple(df.columns)
     column_list_items = "("
     for col in column_list:
@@ -93,11 +116,3 @@ def reformat_and_upload(conn: object, table_name: str, parquet_table: str):
     query = f"SELECT COUNT(*) FROM {table_name}"
     response = conn.run(query)
     return response[0][0]
-
-    # Gets passed in a parquet table format.
-    # Change parquet format to dataframe.
-    # Uses pd.DataFrame.to_sql() to replace the table in the rds with the updated table.
-
-    # conn.run("CREATE TABLE IF NOT EXISTS test (id INT, name TEXT);")
-    # conn.run("INSERT INTO test (id, name) VALUES (%s, %s);", (1, 'Alice'))
-    # conn.commit() ?

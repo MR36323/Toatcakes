@@ -20,7 +20,23 @@ from utils.transform_get_from_ingestion_s3 import get_data
 sys.path.append("/opt/python")
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, context) -> list:
+    """
+    Lambda handler reformating data from ingestion zone bucket,
+    and putting it into the processed zone bucket.
+
+    Args:
+      event: Dict containing the Lambda function event data.
+      context: Lambda runtime context.
+
+    Returns:
+      List containing dictionary containing return info from
+      boto3client put_object.
+
+    Raises:
+      botocore.exceptions.ClientError
+    """
+
     load_dotenv()
     tables = [
         "counterparty",
@@ -35,7 +51,9 @@ def lambda_handler(event, context):
         table_name: get_data(table_name, os.environ.get("INGESTION_BUCKET"))
         for table_name in tables
     }
-    dim_staff_df = create_dim_staff(input_data["staff"], input_data["department"])
+    dim_staff_df = create_dim_staff(
+        input_data["staff"], input_data["department"]
+    )
     dim_counterparty_df = create_dim_counterparty(
         input_data["counterparty"], input_data["address"]
     )
@@ -44,7 +62,9 @@ def lambda_handler(event, context):
     dim_location_df = create_dim_location(input_data["address"])
     dim_date_df = create_dim_date(input_data["sales_order"])
     previous_fact_df = get_latest_transformed_object_from_S3()
-    fact_sales_df = create_fact_sales_order(input_data["sales_order"], previous_fact_df)
+    fact_sales_df = create_fact_sales_order(
+        input_data["sales_order"], previous_fact_df
+    )
     dataframes = {
         "dim_staff": dim_staff_df,
         "dim_counterparty": dim_counterparty_df,
@@ -58,13 +78,13 @@ def lambda_handler(event, context):
     try:
         responses = [
             reformat(
-                dataframes[key], os.environ.get("PROCESSED_BUCKET"), key, s3_client
+                dataframes[key],
+                os.environ.get("PROCESSED_BUCKET"),
+                key,
+                s3_client,
             )
             for key in list(dataframes.keys())
         ]
-    except ClientError as exc:
-        raise
+    except ClientError:
+        raise ClientError
     return responses
-
-
-lambda_handler([], [])

@@ -1,30 +1,9 @@
 import pandas as pd
 import datetime
-import datetime
-
 from boto3 import client
 import os
 from dotenv import load_dotenv
-import json
 from io import BytesIO
-
-"""
-dim_staff -> staff, department
-dim_counterparty -> counterparty, address
-dim_currency -> currency, (currency_name use switch case)
-dim_design -> design
-dim_location -> address
-dim_date -> sales_order
-fact_sales_order -> sales_order
-
-
-NOTE: to track latest sales record id, it might be easiest to store
-      the id as a seperate object in the processed zone bucket.
-      We can then decide what to do with the tables in the bucket 
-      each time we run the pipeline. But we do NOT clear the id each time we
-      run the pipeline; only get_latest_sales_record_id() may change this value,
-      when it is time to increment the sales records id.
-"""
 
 
 def create_dim_staff(staff: list, department: list) -> pd.DataFrame:
@@ -79,7 +58,10 @@ def create_dim_counterparty(counterparty: list, address: list) -> pd.DataFrame:
     counterparty_df = pd.DataFrame(counterparty)
     address_df = pd.DataFrame(address)
     dim_counterparty_df = pd.merge(
-        counterparty_df, address_df, left_on="legal_address_id", right_on="address_id"
+        counterparty_df,
+        address_df,
+        left_on="legal_address_id",
+        right_on="address_id",
     )
     dim_counterparty_df = dim_counterparty_df.drop(
         [
@@ -129,7 +111,9 @@ def create_dim_currency(currency: list) -> pd.DataFrame:
     }
 
     dim_currency_df = pd.DataFrame(currency)
-    dim_currency_df = dim_currency_df.drop(["created_at", "last_updated"], axis=1)
+    dim_currency_df = dim_currency_df.drop(
+        ["created_at", "last_updated"], axis=1
+    )
 
     dim_currency_df["currency_name"] = dim_currency_df["currency_code"].map(
         currency_name
@@ -260,8 +244,12 @@ def create_fact_sales_order(
         previous_df = previous_df.drop(["sales_record_id"], axis=1)
     new_df = pd.DataFrame(sales_order)
     created_at_list = list(new_df["created_at"])
-    new_df["created_date"] = [date_time.split(" ")[0] for date_time in created_at_list]
-    new_df["created_time"] = [date_time.split(" ")[1] for date_time in created_at_list]
+    new_df["created_date"] = [
+        date_time.split(" ")[0] for date_time in created_at_list
+    ]
+    new_df["created_time"] = [
+        date_time.split(" ")[1] for date_time in created_at_list
+    ]
     last_updated_list = list(new_df["last_updated"])
     new_df["last_updated_date"] = [
         date_time.split(" ")[0] for date_time in last_updated_list
@@ -296,59 +284,30 @@ def create_fact_sales_order(
     return fact_sales_df
 
 
-def get_latest_sales_record_id() -> int:
-    """Get the latest sales record id from processed zone bucket.
+def get_latest_transformed_object_from_S3() -> pd.DataFrame:
+    """Finds the most recently changed item in processed zone bucket.
 
-    Args:
     Args:
       None.
 
     Returns:
-      Integer representing the latest sales_record_id.
-
-    Raises:
-      Exception.
+      Pandas DataFrame object representing latest transformed object.
     """
 
-
-def update_latest_sales_record_id(sales_record_id: int):
-    """Put the latest sales record id into processed zone bucket.
-
-    Args:
-    Args:
-      sales_record_id: The latest sales record id.
-
-    Returns:
-      None.
-    """
-
-
-# lambda_handler():
-#     util gets most recent from tranform bucket as json converted to dataframe. get current      record id from key.
-# create_fact_sales_order(sales_order, current_record, current_df)
-
-
-def get_latest_transformed_object_from_S3():
     load_dotenv()
-
     s3_client = client("s3")
-
     objects_response = s3_client.list_objects_v2(
         Bucket=os.environ.get("PROCESSED_BUCKET"), Prefix="fact_sales_order"
     )
-
     if objects_response["KeyCount"] == 0:
         return pd.DataFrame()
-
     times_list = [obj["LastModified"] for obj in objects_response["Contents"]]
-
     most_recent = max(times_list)
     most_recent_key = [
         obj["Key"]
         for obj in objects_response["Contents"]
         if obj["LastModified"] == most_recent
     ][0]
-
     current_data = s3_client.get_object(
         Bucket=os.environ.get("PROCESSED_BUCKET"), Key=most_recent_key
     )["Body"].read()

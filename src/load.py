@@ -9,7 +9,17 @@ from dotenv import load_dotenv
 
 
 def lambda_handler(event, context):
-    # Use similar functionality to extract lambda handler.
+    """
+    Lambda handler placing data from processed zone bucket to RDS database.
+
+    Args:
+      event: Dict containing the Lambda function event data.
+      context: Lambda runtime context.
+
+    Returns:
+      None.
+    """
+
     deletion_tables = [
         "fact_sales_order",
         "dim_counterparty",
@@ -39,6 +49,3 @@ def lambda_handler(event, context):
         data = get_data(table, os.environ.get("PROCESSED_BUCKET"))
         reformat_and_upload(conn, table, data)
     close_connection(conn)
-
-
-lambda_handler([], [])

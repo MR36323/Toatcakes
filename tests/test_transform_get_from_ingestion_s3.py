@@ -48,6 +48,10 @@ def s3_client_with_bucket_with_objects(s3_client_with_bucket):
 
 
 @patch("utils.transform_get_from_ingestion_s3.client")
-def test_returns_latest_list_of_values(mock_client, s3_client_with_bucket_with_objects):
+def test_returns_latest_list_of_values(
+    mock_client, s3_client_with_bucket_with_objects
+):
     mock_client.return_value = s3_client_with_bucket_with_objects
-    assert get_data("test_table1", "test-bucket") == [{"test_column2": "test_value2"}]
+    assert get_data("test_table1", "test-bucket") == [
+        {"test_column2": "test_value2"}
+    ]
