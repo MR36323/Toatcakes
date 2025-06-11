@@ -283,6 +283,15 @@ data "aws_iam_policy_document""load_s3_list_access"{
   }
 }
 
+data "aws_iam_policy_document""load_read_secret_manager"{
+    statement {
+    actions = ["secretsmanager:GetSecretValue"]
+    resources = [
+      "arn:aws:secretsmanager:eu-west-2:292779133515:secret:prod/warehouse-thBZA4",
+    ]
+  }
+}
+
 # data "aws_iam_policy_document" "transform_cw_permissions" {
 #   statement {
 #     actions = [ "logs:CreateLogGroup" ]
@@ -315,6 +324,12 @@ resource "aws_iam_policy""load_s3_list_policy"{
 # }
 
 
+resource "aws_iam_policy" "load_secret_manager_read_policy" {
+  name = "load-secret-manager-policy"
+  policy = data.aws_iam_policy_document.load_read_secret_manager.json
+}
+
+
 resource "aws_iam_role_policy_attachment" "load_lambda_s3_read_attachment" {
     role = aws_iam_role.load_lambda_role.name
     policy_arn = aws_iam_policy.load_s3_read_policy.arn
@@ -332,4 +347,9 @@ resource "aws_iam_role_policy_attachment" "load_lambda_s3_read_attachment" {
 resource "aws_iam_role_policy_attachment" "load_lambda_s3_list_attachment" {
   role = aws_iam_role.load_lambda_role.name
   policy_arn = aws_iam_policy.load_s3_list_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "load_lambda_access_secret_manager_read_attachment" {
+    role = aws_iam_role.load_lambda_role.name
+    policy_arn = aws_iam_policy.load_secret_manager_read_policy.arn
 }

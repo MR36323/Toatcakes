@@ -1,7 +1,7 @@
 from pg8000.native import Connection
 from pg8000.exceptions import InterfaceError, DatabaseError
 from dotenv import load_dotenv
-from boto3 import client, session
+import boto3
 from botocore.exceptions import ClientError
 import pandas as pd
 from io import BytesIO
@@ -44,7 +44,7 @@ def get_secret(secret_name: str, region_name: str) -> dict:
       ClientError: If anything goes wrong.
     """
   
-    session = session.Session()
+    session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
     try:

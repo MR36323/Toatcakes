@@ -229,13 +229,6 @@ def create_dim_date(sales_orders: list) -> pd.DataFrame:
         "Friday",
         "Saturday",
         "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
     )
     for date in dates:
         date = date.split()[0]
