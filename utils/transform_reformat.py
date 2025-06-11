@@ -3,7 +3,9 @@ from boto3 import client
 from datetime import datetime
 
 
-def reformat(table: pd.DataFrame, bucket_name: str, table_name: str, s3_client: client) -> None:
+def reformat(
+    table: pd.DataFrame, bucket_name: str, table_name: str, s3_client: client
+) -> None:
     """Places transformed data into proccess zone bucket.
 
     Args:

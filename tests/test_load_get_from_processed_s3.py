@@ -9,6 +9,7 @@ from datetime import datetime
 import pandas as pd
 import time
 
+
 @pytest.fixture(scope="function", autouse=True)
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
@@ -18,16 +19,18 @@ def aws_credentials():
     os.environ["AWS_SESSION_TOKEN"] = "testing"
     os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
+
 @pytest.fixture(scope="function")
 def s3_client(aws_credentials):
     with mock_aws():
         yield boto3.client("s3")
 
+
 @pytest.fixture(scope="function")
 def s3_client_with_bucket(s3_client):
     s3_client.create_bucket(Bucket="test-bucket")
     yield s3_client
-    
+
 
 @pytest.fixture(scope="function")
 def s3_client_with_bucket_with_objects(s3_client_with_bucket):
@@ -36,7 +39,7 @@ def s3_client_with_bucket_with_objects(s3_client_with_bucket):
     s3_client_with_bucket.put_object(
         Bucket="test-bucket",
         Key=f"test_table1{datetime(2025, 1, 1)}",
-        Body=parquet_data
+        Body=parquet_data,
     )
     time.sleep(1)
     test_dataframe2 = pd.DataFrame({"C": [1, 2, 3], "D": [1, 2, 3]})
@@ -44,19 +47,25 @@ def s3_client_with_bucket_with_objects(s3_client_with_bucket):
     s3_client_with_bucket.put_object(
         Bucket="test-bucket",
         Key=f"test_table1{datetime(2025, 1, 1)}",
-        Body=parquet_data2
+        Body=parquet_data2,
     )
     yield s3_client_with_bucket
+
 
 @patch("utils.load_get_from_processed_s3.client")
 def test_returns_latest_table_objects(mock_client, s3_client_with_bucket_with_objects):
     mock_client.return_value = s3_client_with_bucket_with_objects
-    result = get_data("test_table1", "test-bucket") 
+    result = get_data("test_table1", "test-bucket")
 
-    pd.testing.assert_frame_equal(result, pd.DataFrame({"C": [1, 2, 3], "D": [1, 2, 3]}))
+    pd.testing.assert_frame_equal(
+        result, pd.DataFrame({"C": [1, 2, 3], "D": [1, 2, 3]})
+    )
+
 
 @patch("utils.load_get_from_processed_s3.client")
-def test_exception_is_raised_if_table_does_not_exist(mock_client, s3_client_with_bucket_with_objects):
+def test_exception_is_raised_if_table_does_not_exist(
+    mock_client, s3_client_with_bucket_with_objects
+):
     mock_client.return_value = s3_client_with_bucket_with_objects
     mock_client.return_value.side_effect = Exception("table does not exist")
     with pytest.raises(Exception):

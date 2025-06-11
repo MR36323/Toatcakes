@@ -20,7 +20,7 @@ from utils.transform_get_from_ingestion_s3 import get_data
 sys.path.append("/opt/python")
 
 
-def lambda_handler(event,  context):
+def lambda_handler(event, context):
     load_dotenv()
     tables = [
         "counterparty",
@@ -35,8 +35,7 @@ def lambda_handler(event,  context):
         table_name: get_data(table_name, os.environ.get("INGESTION_BUCKET"))
         for table_name in tables
     }
-    dim_staff_df = create_dim_staff(input_data["staff"],
-                                    input_data["department"])
+    dim_staff_df = create_dim_staff(input_data["staff"], input_data["department"])
     dim_counterparty_df = create_dim_counterparty(
         input_data["counterparty"], input_data["address"]
     )
@@ -45,24 +44,27 @@ def lambda_handler(event,  context):
     dim_location_df = create_dim_location(input_data["address"])
     dim_date_df = create_dim_date(input_data["sales_order"])
     previous_fact_df = get_latest_transformed_object_from_S3()
-    fact_sales_df = create_fact_sales_order(input_data["sales_order"],
-                                            previous_fact_df)
+    fact_sales_df = create_fact_sales_order(input_data["sales_order"], previous_fact_df)
     dataframes = {
-        'dim_staff': dim_staff_df,
-        'dim_counterparty': dim_counterparty_df,
-        'dim_currency': dim_currency_df,
-        'dim_design': dim_design_df,
-        'dim_location': dim_location_df,
-        'dim_date': dim_date_df,
-        'fact_sales': fact_sales_df,
+        "dim_staff": dim_staff_df,
+        "dim_counterparty": dim_counterparty_df,
+        "dim_currency": dim_currency_df,
+        "dim_design": dim_design_df,
+        "dim_location": dim_location_df,
+        "dim_date": dim_date_df,
+        "fact_sales_order": fact_sales_df,
     }
     s3_client = client("s3")
     try:
         responses = [
-            reformat(dataframes[key], os.environ.get("PROCESSED_BUCKET"), key, s3_client)
+            reformat(
+                dataframes[key], os.environ.get("PROCESSED_BUCKET"), key, s3_client
+            )
             for key in list(dataframes.keys())
         ]
     except ClientError as exc:
-        print(exc)
         raise
     return responses
+
+
+lambda_handler([], [])

@@ -1,4 +1,9 @@
-from utils.load_data_to_warehouse import make_connection, close_connection, get_secret, reformat_and_upload
+from utils.load_data_to_warehouse import (
+    make_connection,
+    close_connection,
+    get_secret,
+    reformat_and_upload,
+)
 import pytest
 from moto import mock_aws
 from unittest.mock import Mock, patch, MagicMock
@@ -30,37 +35,37 @@ from pg8000.native import Connection
 # @pytest.fixture(scope="function")
 # def rds_client_with_data(rds_client):
 
-@pytest.fixture(scope='function',autouse=True)
+
+@pytest.fixture(scope="function", autouse=True)
 def make_db():
     load_dotenv()
     conn = Connection(
         user=os.environ.get("PG_USER"),
-        password=os.environ.get('PG_PASSWORD'),
-        host=os.environ.get('PG_HOST'),
-        port=os.environ.get('PG_PORT'),
-        database='postgres'
+        password=os.environ.get("PG_PASSWORD"),
+        host=os.environ.get("PG_HOST"),
+        port=os.environ.get("PG_PORT"),
+        database="postgres",
     )
-    drop_db = conn.run("""DROP DATABASE IF EXISTS test_database
-              """)
-    create_db = conn.run('CREATE DATABASE test_database')
-    
+    drop_db = conn.run(
+        """DROP DATABASE IF EXISTS test_database
+              """
+    )
+    create_db = conn.run("CREATE DATABASE test_database")
+
     db_conn = Connection(
         user=os.environ.get("PG_USER"),
-        password=os.environ.get('PG_PASSWORD'),
-        host=os.environ.get('PG_HOST'),
-        port=os.environ.get('PG_PORT'),
-        database='test_database'
+        password=os.environ.get("PG_PASSWORD"),
+        host=os.environ.get("PG_HOST"),
+        port=os.environ.get("PG_PORT"),
+        database="test_database",
     )
 
-    staff_table = db_conn.run("""
+    staff_table = db_conn.run(
+        """
                            CREATE TABLE staff (
                            a VARCHAR, b VARCHAR)"""
-                           )
+    )
     return db_conn
-
-
-
-
 
 
 @patch("utils.load_data_to_warehouse.Connection")
@@ -78,12 +83,12 @@ def test_function_uploads_table_data_to_warehouse(mock_secret, mock_conn, make_d
     # close_connection(conn)
     load_dotenv()
     mock_secret.return_value = {
-        "username": os.environ.get('PG_USER'),
-        "password": os.environ.get('PG_PASSWORD'),
-        "engine":  'postgres',
-        "host":  os.environ.get('PG_HOST'),
-        "port": os.environ.get('PG_PORT'),
-        "dbname": os.environ.get('PG_DATABASE')
+        "username": os.environ.get("PG_USER"),
+        "password": os.environ.get("PG_PASSWORD"),
+        "engine": "postgres",
+        "host": os.environ.get("PG_HOST"),
+        "port": os.environ.get("PG_PORT"),
+        "dbname": os.environ.get("PG_DATABASE"),
     }
     mock_conn.return_value = make_db
     conn = make_connection()
@@ -94,6 +99,7 @@ def test_function_uploads_table_data_to_warehouse(mock_secret, mock_conn, make_d
     close_connection(conn)
 
     assert result == 3
+
 
 # def test_naming_convention_of_new_table_data_uploads():
 #     pass

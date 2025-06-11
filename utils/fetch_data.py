@@ -27,7 +27,7 @@ def make_connection() -> Connection:
             password=secrets_info["password"],
             database=secrets_info["dbname"],
             host=secrets_info["host"],
-            port=secrets_info["port"]
+            port=secrets_info["port"],
         )
         return conn
     except (InterfaceError, Exception) as e:

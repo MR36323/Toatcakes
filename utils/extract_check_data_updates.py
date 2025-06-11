@@ -41,15 +41,13 @@ def check_data_updates(new_data):
     ][0]
 
     current_data = (
-        s3_client.get_object(Bucket=os.environ.get("INGESTION_BUCKET"), Key=most_recent_key)[
-            "Body"
-        ]
+        s3_client.get_object(
+            Bucket=os.environ.get("INGESTION_BUCKET"), Key=most_recent_key
+        )["Body"]
         .read()
         .decode("utf-8")
     )
     json_current = json.loads(current_data)
-    print("s3", json_current)
-    print("db", new_data)
     if normalise(json_current) == normalise(new_data):
         return False
     else:

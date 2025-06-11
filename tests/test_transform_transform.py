@@ -22,7 +22,7 @@ import fastparquet
 
 
 class TestCreateDimStaff:
-    @pytest.fixture(scope='function')
+    @pytest.fixture(scope="function")
     def test_data(self):
         return (
             [
@@ -201,7 +201,6 @@ class TestCreateDimCounterparty:
             "counterparty_legal_phone_number",
         }
 
-
     def test_correct_clmn_data_types(self, test_data):
         result_df = create_dim_counterparty(test_data[0], test_data[1])
         assert type(result_df.loc[0]["counterparty_id"]) == np.int64
@@ -223,7 +222,6 @@ class TestCreateDimCounterparty:
         assert type(result_df.loc[0]["counterparty_legal_postal_code"]) == str
         assert type(result_df.loc[0]["counterparty_legal_country"]) == str
         assert type(result_df.loc[0]["counterparty_legal_phone_number"]) == str
-
 
     def test_correct_data_values(self, test_data):
         result_df = create_dim_counterparty(test_data[0], test_data[1])
@@ -311,7 +309,6 @@ class TestCreateDimCurrency:
             "currency_name",
         ]
 
-
     def test_handles_currency_name_not_in_dictionary(self):
 
         test_input = [
@@ -330,7 +327,6 @@ class TestCreateDimCurrency:
         ]
 
         response = create_dim_currency(test_input)
-        print(list(response["currency_name"]))
         assert list(response["currency_name"]) == ["Unknown", "Euro"]
 
 
@@ -356,7 +352,6 @@ class TestCreateDimDesign:
                 "last_updated": 2,
             },
         ]
-
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_design(test_data)
@@ -403,7 +398,6 @@ class TestCreateDimLocation:
                 "last_updated": 1,
             }
         ]
-
 
     def test_output_is_of_type_dataframe(self, test_data):
         result_df = create_dim_location(test_data)
@@ -498,7 +492,6 @@ class TestCreateDimDate:
             "month_name",
             "quarter",
         ]
-
 
     def test_correct_number_of_values(self):
         test_input = [
@@ -729,6 +722,7 @@ class TestCreateFactSalesOrder:
             "2022-11-06",
             np.int64(19),
         ]
+
 
 class TestGetLatestTransformedObject:
     @pytest.fixture

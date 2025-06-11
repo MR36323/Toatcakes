@@ -8,6 +8,7 @@ from unittest.mock import patch
 import json
 import time
 
+
 @pytest.fixture(scope="function", autouse=True)
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
@@ -19,11 +20,11 @@ def aws_credentials():
     os.environ["INGESTION_BUCKET"] = "test-bucket"
 
 
-
 @pytest.fixture(scope="function")
 def s3_client(aws_credentials):
     with mock_aws():
         yield boto3.client("s3")
+
 
 @pytest.fixture(scope="function")
 def s3_client_with_bucket(s3_client):
@@ -72,7 +73,6 @@ def test_returns_false_if_data_is_unchanged(
     assert check_data_updates(test_data) == False
 
 
-
 @patch("utils.check_data_updates.client")
 def test_returns_true_if_no_objects(mock_client, s3_client_with_bucket):
     mock_client.return_value = s3_client_with_bucket
@@ -80,6 +80,4 @@ def test_returns_true_if_no_objects(mock_client, s3_client_with_bucket):
     assert check_data_updates(test_data)
 
 
-
 #  check if prefix is working by adding more test tables
-
