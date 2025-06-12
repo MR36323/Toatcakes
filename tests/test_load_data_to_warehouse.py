@@ -76,12 +76,12 @@ def test_returns_connection_object(mock_connection, mock_secret):
     mock_conn = Mock()
     mock_connection.return_value = mock_conn
     mock_secret.return_value = {
-        "username": "test_user",
-        "password": "password",
-        "engine": "postgres",
-        "host": "test_host",
-        "port": 5432,
-        "dbname": "test_DB",
+    "username": "test_user",
+    "password": "password",
+    "engine": "postgres",
+    "host": "test_host",
+    "port": 5432,
+    "dbname": "test_DB",
     }
     conn = make_connection()
     assert conn is mock_conn
