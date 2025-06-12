@@ -292,22 +292,6 @@ data "aws_iam_policy_document""load_read_secret_manager"{
   }
 }
 
-# data "aws_iam_policy_document" "transform_cw_permissions" {
-#   statement {
-#     actions = [ "logs:CreateLogGroup" ]
-#     resources = [
-#       "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
-#     ]
-#   }
-#   statement {
-#     actions = [ "logs:CreateLogStream", "logs:PutLogEvents" ]
-#     resources = [
-#       "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/*"
-#     ]
-#   }
-# }
-
-
 resource "aws_iam_policy" "load_s3_read_policy" {
   name = "load-s3-read-policy"
   policy = data.aws_iam_policy_document.load_s3_read_access.json
@@ -318,31 +302,15 @@ resource "aws_iam_policy""load_s3_list_policy"{
     policy = data.aws_iam_policy_document.load_s3_list_access.json
 }
 
-# resource "aws_iam_policy""transform_cw_log_policy" {
-#   name = "transform-cw-log-policy"
-#   policy = data.aws_iam_policy_document.transform_cw_permissions.json
-# }
-
-
 resource "aws_iam_policy" "load_secret_manager_read_policy" {
   name = "load-secret-manager-policy"
   policy = data.aws_iam_policy_document.load_read_secret_manager.json
 }
 
-
 resource "aws_iam_role_policy_attachment" "load_lambda_s3_read_attachment" {
     role = aws_iam_role.load_lambda_role.name
     policy_arn = aws_iam_policy.load_s3_read_policy.arn
 }
-
-# resource "aws_iam_role_policy_attachment" "transform_lambda_s3_write_attachment" {
-#   role = aws_iam_role.transform_lambda_role.name
-#   policy_arn = aws_iam_policy.transform_s3_write_policy.arn
-#}
-# resource "aws_iam_role_policy_attachment" "transform_lambda_cw_logs_attachment" {
-#   role = aws_iam_role.transform_lambda_role.name
-#   policy_arn = aws_iam_policy.transform_cw_log_policy.arn
-# }
 
 resource "aws_iam_role_policy_attachment" "load_lambda_s3_list_attachment" {
   role = aws_iam_role.load_lambda_role.name
