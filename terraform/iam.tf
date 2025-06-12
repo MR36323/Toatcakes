@@ -321,3 +321,97 @@ resource "aws_iam_role_policy_attachment" "load_lambda_access_secret_manager_rea
     role = aws_iam_role.load_lambda_role.name
     policy_arn = aws_iam_policy.load_secret_manager_read_policy.arn
 }
+
+##########################################
+#            STEP FUNCTION                #
+##########################################
+
+resource "aws_iam_role" "step_func_role" {
+  name_prefix = "role-totesys-step_func-"
+  assume_role_policy = <<EOF
+   {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "sts:AssumeRole"
+                ],
+                "Principal": {
+                    "Service": [
+                        "states.amazonaws.com"
+                    ]
+                }
+            }
+        ]
+    }
+EOF
+}
+
+
+data "aws_iam_policy_document" "step_func_document" {
+  statement {
+    effect = "Allow"
+    actions = ["lambda:InvokeFunction"]
+    resources = [
+                "${aws_lambda_function.extract_lambda.arn}:*",
+                "${aws_lambda_function.transform_lambda.arn}:*",
+                "${aws_lambda_function.load_lambda.arn}:*"
+            ]
+  }
+}
+
+resource "aws_iam_policy" "step_func_policy" {
+  name_prefix =  "step-func-policy-totesys-lambda-"
+  policy = data.aws_iam_policy_document.step_func_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "step_func_lambda_policy_attachment" {
+  role = aws_iam_role.step_func_role.name
+  policy_arn = aws_iam_policy.step_func_policy.arn
+}
+
+##########################################
+#            EVENTBRIDGE                 #
+##########################################
+
+resource "aws_iam_role" "Eventbridge_role" {
+  name_prefix = "role-currency-eventbridge"
+  assume_role_policy = <<EOF
+   {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "sts:AssumeRole"
+                ],
+                "Principal": {
+                    "Service": [
+                        "events.amazonaws.com"
+                    ]
+                }
+            }
+        ]
+    }
+EOF
+}
+
+data "aws_iam_policy_document" "eventbridge_document" {
+  statement {
+    effect = "Allow"
+    actions = ["states:StartExecution"]
+    resources = [
+                aws_sfn_state_machine.step_function.arn
+            ]
+  }
+}
+resource "aws_iam_policy" "eventbridge_policy" {
+  name = "eventbridge-policy-totesys"
+  policy = data.aws_iam_policy_document.eventbridge_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "eventbridge_step_func_attachment" {
+  role = aws_iam_role.Eventbridge_role.name
+  policy_arn = aws_iam_policy.eventbridge_policy.arn
+}
