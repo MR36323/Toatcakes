@@ -2,9 +2,11 @@
 **/.terraform*
 venv/
 venv
-**/dependencies
+**/dependencies*
 **/packages
 **/__pycache__/
 **/packages/*
 notebook.ipynb
+.coverage
 dependencies1
+lambda-layer

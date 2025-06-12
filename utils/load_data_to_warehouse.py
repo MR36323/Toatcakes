@@ -1,11 +1,11 @@
 from pg8000.native import Connection
-from pg8000.exceptions import InterfaceError, DatabaseError
+from pg8000.exceptions import InterfaceError
 import boto3
 from botocore.exceptions import ClientError
 import json
 
 
-def make_connection() -> Connection:
+def make_connection():
     """Connects to the database.
 
     Args:
@@ -18,8 +18,7 @@ def make_connection() -> Connection:
       InterfaceError: If credentials are incorrect.
     """
 
-    secrets_info = get_secret("prod/totesys", "eu-west-2")
-
+    secrets_info = get_secret("prod/warehouse", "eu-west-2")
     try:
         conn = Connection(
             user=secrets_info["username"],
@@ -34,7 +33,7 @@ def make_connection() -> Connection:
         raise e
 
 
-def close_connection(conn: Connection):
+def close_connection(conn):
     """Closes connection to database.
 
     Args:
@@ -42,54 +41,8 @@ def close_connection(conn: Connection):
 
     Returns:
       None.
-
-    Raises:
-      InterfaceError: When connection has been closed.
-      AtrributeError: Argument is not connection object.
+    conn.close()
     """
-
-    try:
-        conn.close()
-    except (AttributeError, InterfaceError, Exception) as e:
-        print(f"An error occured: {e}")
-        raise e
-
-
-def zip_rows_and_columns(rows: list, columns: dict) -> list[dict]:
-    """Maps the data in rows and column names.
-
-    Args:
-      rows: All rows in table.
-      columns: All column names in table.
-
-    Returns:
-      Dictionary with data from rows and columns are mapped.
-    """
-    return [dict(zip(columns, row)) for row in rows]
-
-
-def get_data(conn: Connection, query: str, table_name: str) -> dict:
-    """Gets rows and columns from table in database.
-
-    Args:
-      conn: Pg8000 connection object.
-      query: Selects all queries.
-      table_name: Tables name.
-
-    Returns:
-      Dictionary with table name as key and data as value.
-
-    Raises:
-      DatabaseError: Table does not exist.
-    """
-    try:
-        rows = conn.run(query)
-        columns = [row["name"] for row in conn.columns]
-        data = zip_rows_and_columns(rows, columns)
-        return {table_name: data}
-    except (DatabaseError, Exception) as e:
-        print(f"An error occured: {e}")
-        raise e
 
 
 def get_secret(secret_name: str, region_name: str) -> dict:
@@ -105,6 +58,7 @@ def get_secret(secret_name: str, region_name: str) -> dict:
     Raises:
       ClientError: If anything goes wrong.
     """
+
     session = boto3.session.Session()
     client = session.client(
         service_name="secretsmanager", region_name=region_name
@@ -120,3 +74,45 @@ def get_secret(secret_name: str, region_name: str) -> dict:
 
     secret = get_secret_value_response["SecretString"]
     return json.loads(secret)
+
+
+def reformat_and_upload(
+    conn: object, table_name: str, parquet_table: str
+) -> int:
+    """Adds data in parquet file to a psql table.
+
+    Args:
+      conn: pg8000 connection object.
+      table_name: Name of table in psql database table.
+      parquet_table: Data from a parquet file, corresponding to database table
+
+    Returns:
+      Number of rows in psql table.
+    """
+
+    df = parquet_table
+    column_list = tuple(df.columns)
+    column_list_items = "("
+    for col in column_list:
+        column_list_items += f"{str(col)}, "
+    final_str = column_list_items.rstrip(", ") + ")"
+    for index, row in df.iterrows():
+        values = []
+        for column in column_list:
+            try:
+                values.append(int(row[column]))
+            except ValueError:
+                values.append(f"'{str(row[column])}'")
+            except TypeError:
+                values.append(f"'{str('Null Value')}'")
+        value_list_items = "("
+        for value in values:
+            value_list_items += f"{str(value)}, "
+
+        value_str = value_list_items.rstrip(", ") + ")"
+
+        query = f"INSERT INTO {table_name} {final_str} VALUES {value_str}"
+        response = conn.run(query)
+    query = f"SELECT COUNT(*) FROM {table_name}"
+    response = conn.run(query)
+    return response[0][0]
