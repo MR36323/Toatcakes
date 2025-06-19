@@ -1,8 +1,18 @@
 
-## Toatcakes ETL 
+# Toatcakes ETL 
 
-ETL pipeline, written in Python and Terraform, hosted on AWS, for deriving business analytics for simulated tote bag business. 
+ETL pipeline, written in Python and Terraform, hosted on AWS, for deriving business analytics for a simulated tote bag business. 
 
+## Context
+
+For our final project at [Northcoders](https://www.northcoders.com/), we were tasked with implementing and testing an ETL pipeline, for a simulated tote bag business. The pipeline extracts data from an OLTP database, before transforming and placing it into a remote OLAP Postgres database. The business required that the pipeline be hosted on AWS, and that changes to select parts of the OLTP database be reflected in the OLAP within 30 minutes. 
+
+Some key features of the project:
+
+- Lambda Functions: The first, for extracting data from the OLTP, if there had been a relevant change. The second, for reformating the extracted data into a star schema. The third, for placing the transformed data into the OLAP, taking the form of an Amazon RDS Postgres database. 
+- S3 Buckets: The Extract Lambda and Transform Lambda functions store their data in seperate S3 Buckets. The data is treated as immutable.
+- Cloudwatch: Alerts are sent to an email address should any Lambda Function error.
+- Step Functions and Eventbridge: The Lambda Functions are strung together by AWS Step functions, which is trigger every 20 minutes by the Eventbridge.
 
 ## Deployment
 
@@ -37,9 +47,10 @@ Terraform will prompt you for an email address. This is for Cloudwatch alerts, b
 
 8. Check all is well by logging into the AWS console. Things to check include: 
 
- - Does Eventbridge trigger every 20 minutes?
- - Are Step Functions working?
- - Is data being placed in S3 buckets?
+- Does Eventbridge trigger every 20 minutes?
+- Are Step Functions working?
+- Is data being placed in S3 buckets?
+
 ## Authors
 
 - [@Mburns1212](https://www.github.com/Mburns1212)
